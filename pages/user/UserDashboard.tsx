@@ -360,7 +360,7 @@ const UserDashboard: React.FC = () => {
 
             <p className="text-sm sm:text-base text-white leading-relaxed mb-6 bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20">
               Agar saytimizdan foydalanib{" "}
-              <span className="font-black">haydovchilik guvohnomasini</span>{" "}
+              <span className="font-black">Bot sizga maqul kelgan boʻlsa sizga manfaatli boʻlgan boʻlsa</span>{" "}
               olishga muvaffaq bo'lsangiz, bizni{" "}
               <span className="font-black">kichik danat</span> bilan
               qo'llab-quvvatlashingiz mumkin.
@@ -378,7 +378,7 @@ const UserDashboard: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 p-4 rounded-xl font-mono text-lg font-black text-slate-800 dark:text-white tracking-wider border-2 border-slate-200 dark:border-slate-500">
-                    5614 6846 0540 4175
+                    9860 1266 7183 6719
                   </div>
                   <button
                     onClick={copyCardNumber}
