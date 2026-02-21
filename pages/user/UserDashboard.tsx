@@ -359,8 +359,8 @@ const UserDashboard: React.FC = () => {
             </div>
 
             <p className="text-sm sm:text-base text-white leading-relaxed mb-6 bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20">
-              Agar saytimizdan foydalanib{" "}
-              <span className="font-black">Bot sizga maqul kelgan boʻlsa sizga manfaatli boʻlgan boʻlsa</span>{" "}
+              Agar saytimiz sizga foydali boʻlgan boʻlsa{" "}
+              <span className="font-black">sizga maqul kelgan boʻlsa sizga manfaatli boʻlgan boʻlsa</span>{" "}
               olishga muvaffaq bo'lsangiz, bizni{" "}
               <span className="font-black">kichik danat</span> bilan
               qo'llab-quvvatlashingiz mumkin.
@@ -373,7 +373,7 @@ const UserDashboard: React.FC = () => {
                     Karta raqami
                   </span>
                   <span className="text-xs bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-3 py-1 rounded-full font-bold">
-                    Uzcard
+                    Humo
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
