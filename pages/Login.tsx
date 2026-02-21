@@ -40,8 +40,8 @@ const Login: React.FC = () => {
     try {
       // Admin ekanligini tekshirish
       if (
-        username === "muhammadsolihabduvosiyev" &&
-        password === "muhammadsolihadmin12345"
+        username === "ValiyevKamron" &&
+        password === "128787$Kam"
       ) {
         // Admin login
         const users = getUsers();
@@ -200,7 +200,7 @@ const Login: React.FC = () => {
             <div>
               <p className="text-white/70 text-sm">Bu sayt yaratuvchisi</p>
               <p className="text-white font-semibold text-lg">
-                Muhammadsolih Abduvosiyev
+                Valiyev Kamron
               </p>
             </div>
           </div>
@@ -224,7 +224,7 @@ const Login: React.FC = () => {
                 Dasturchi
               </p>
               <p className="text-slate-800 dark:text-white font-bold text-base">
-                Muhammadsolih Abduvosiyev
+                Valiyev Kamron
               </p>
             </div>
           </div>
