@@ -4,6 +4,9 @@ import {
   getQuestions,
   getQuestionsByCategory,
   saveResult,
+  getDailyTestInfo,
+  incrementDailyTest,
+  isPremiumActive,
 } from "../../services/db";
 import { Question, TestResult, TestResultDetail } from "../../types";
 import { useAuth } from "../../context/AuthContext";
@@ -35,6 +38,16 @@ const Quiz: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Kunlik limit tekshiruvi
+    const dailyInfo = getDailyTestInfo();
+    if (!dailyInfo.canTest) {
+      alert(`⛔ Kunlik bepul testlar tugadi (${dailyInfo.used}/${dailyInfo.limit}).\n\nPremium obuna bilan cheksiz test topshing! Botdan premium oling.`);
+      navigate("/user");
+      return;
+    }
+    // Test boshlanganda kunlik hisobni oshirish
+    incrementDailyTest();
+
     const allQuestions = topic ? getQuestionsByCategory(topic) : getQuestions();
     const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, count);
