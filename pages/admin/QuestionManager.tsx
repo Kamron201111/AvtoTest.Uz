@@ -15,10 +15,191 @@ import {
   Plus,
   Search,
   ImageIcon,
+  Upload,
+  X,
+  CheckCircle,
 } from "lucide-react";
 import { useUI } from "../../context/UIContext";
 import { VirtualScroll } from "../../components/VirtualScroll";
 import ConfirmModal from "../../components/ConfirmModal";
+
+// ===================== BULK IMPORT MODAL =====================
+const BulkImportModal: React.FC<{
+  onClose: () => void;
+  onImport: (questions: Question[]) => void;
+}> = ({ onClose, onImport }) => {
+  const [text, setText] = useState("");
+  const [error, setError] = useState("");
+  const [preview, setPreview] = useState<Question[]>([]);
+
+  const EXAMPLE = `[
+  {
+    "questionText": "Aholi punktlarida ruxsat etilgan tezlik?",
+    "options": {"A": "60 km/soat", "B": "80 km/soat", "C": "50 km/soat", "D": "100 km/soat"},
+    "correctAnswer": "A",
+    "category": "qoidalar"
+  },
+  {
+    "questionText": "Bu qaysi belgi?",
+    "options": {"A": "To'xtash", "B": "Yo'l bering", "C": "Taqiq", "D": "Xavf"},
+    "correctAnswer": "A",
+    "category": "belgilar",
+    "image": "https://example.com/rasm.jpg"
+  }
+]`;
+
+  const toBase64FromUrl = async (url: string): Promise<string> => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return url;
+    }
+  };
+
+  const handleParse = async () => {
+    setError("");
+    setPreview([]);
+    try {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) throw new Error("JSON massiv bo'lishi kerak: [...]");
+
+      const questions: Question[] = await Promise.all(
+        parsed.map(async (item: any, i: number) => {
+          if (!item.questionText) throw new Error(`${i + 1}-savol: "questionText" yo'q`);
+          if (!item.options?.A || !item.options?.B || !item.options?.C || !item.options?.D)
+            throw new Error(`${i + 1}-savol: options ichida A, B, C, D bo'lishi kerak`);
+          if (!["A", "B", "C", "D"].includes(item.correctAnswer))
+            throw new Error(`${i + 1}-savol: "correctAnswer" faqat A, B, C yoki D bo'lishi kerak`);
+
+          let image = item.image || "";
+          if (image && image.startsWith("http")) {
+            image = await toBase64FromUrl(image);
+          }
+
+          return {
+            id: Date.now().toString() + "_" + i + "_" + Math.random().toString(36).substr(2, 5),
+            questionText: item.questionText,
+            options: { A: item.options.A, B: item.options.B, C: item.options.C, D: item.options.D },
+            correctAnswer: item.correctAnswer,
+            category: item.category || "umumiy",
+            image,
+          };
+        })
+      );
+      setPreview(questions);
+    } catch (e: any) {
+      setError(e.message || "JSON xato — formatni tekshiring");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">📥 Ko'p savolni bittada yuklash</h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
+            <X size={20} className="text-slate-500" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+            <p className="text-sm font-medium text-blue-700 dark:text-blue-400 mb-2">📋 JSON format (namuna):</p>
+            <pre className="text-xs text-blue-600 dark:text-blue-300 overflow-x-auto whitespace-pre-wrap font-mono">{EXAMPLE}</pre>
+            <button
+              onClick={() => { setText(EXAMPLE); setPreview([]); setError(""); }}
+              className="mt-3 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Namunani yuklash
+            </button>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              💡 <strong>Rasmli savollar uchun:</strong> "image" maydoniga rasm URL manzilini yozing — dastur uni avtomatik yuklab saqlaydi. Yoki base64 formatida ham qo'ysa bo'ladi.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              JSON ni bu yerga joylashtiring:
+            </label>
+            <textarea
+              value={text}
+              onChange={(e) => { setText(e.target.value); setPreview([]); setError(""); }}
+              rows={12}
+              placeholder='[{"questionText": "...", "options": {"A": "...", "B": "...", "C": "...", "D": "..."}, "correctAnswer": "A", "category": "qoidalar"}]'
+              className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm"
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
+              <p className="text-sm text-red-600 dark:text-red-400">❌ {error}</p>
+            </div>
+          )}
+
+          {preview.length > 0 && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle size={18} className="text-green-600" />
+                <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                  {preview.length} ta savol tayyor! Ko'rib chiqing:
+                </p>
+              </div>
+              <div className="space-y-2 max-h-52 overflow-y-auto">
+                {preview.map((q, i) => (
+                  <div key={i} className="text-xs bg-white dark:bg-slate-700 rounded-lg p-2 border border-green-100 dark:border-green-900 flex items-center gap-2">
+                    {q.image && (
+                      <img src={q.image} alt="" className="w-8 h-8 object-cover rounded flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-bold text-slate-500 mr-1">{i + 1}.</span>
+                      <span className="text-slate-700 dark:text-slate-300">{q.questionText}</span>
+                    </div>
+                    <span className="text-green-600 font-bold flex-shrink-0">{q.correctAnswer}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            {preview.length === 0 ? (
+              <button
+                onClick={handleParse}
+                disabled={!text.trim()}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Tekshirish
+              </button>
+            ) : (
+              <button
+                onClick={() => onImport(preview)}
+                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+              >
+                <Upload size={18} /> {preview.length} ta savolni saqlash
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+            >
+              Bekor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const QuestionList: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +211,10 @@ export const QuestionList: React.FC = () => {
   // Confirmation States
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteAll, setIsDeleteAll] = useState(false);
+
+  // Bulk import states
+  const [showBulkImport, setShowBulkImport] = useState(false);
+  const [importSuccess, setImportSuccess] = useState(0);
 
   // Kategoriyalar ro'yxati
   const categories = [
@@ -68,6 +253,14 @@ export const QuestionList: React.FC = () => {
     deleteAllQuestions();
     setQuestions([]);
     setIsDeleteAll(false);
+  };
+
+  const handleBulkImport = (newQuestions: Question[]) => {
+    newQuestions.forEach((q) => saveQuestion(q));
+    setQuestions(getQuestions());
+    setShowBulkImport(false);
+    setImportSuccess(newQuestions.length);
+    setTimeout(() => setImportSuccess(0), 4000);
   };
 
   const filtered = useMemo(() => {
@@ -142,6 +335,23 @@ export const QuestionList: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 h-screen flex flex-col pb-4 box-border">
+
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <BulkImportModal
+          onClose={() => setShowBulkImport(false)}
+          onImport={handleBulkImport}
+        />
+      )}
+
+      {/* Muvaffaqiyat xabari */}
+      {importSuccess > 0 && (
+        <div className="fixed top-4 right-4 z-40 bg-green-500 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2">
+          <CheckCircle size={18} />
+          {importSuccess} ta savol muvaffaqiyatli qo'shildi!
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 flex-shrink-0">
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <button
@@ -161,6 +371,12 @@ export const QuestionList: React.FC = () => {
             className="flex-1 sm:flex-none bg-red-100 text-red-600 px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-bold hover:bg-red-200 transition-all"
           >
             <Trash2 size={16} /> Tozalash
+          </button>
+          <button
+            onClick={() => setShowBulkImport(true)}
+            className="flex-1 sm:flex-none bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium hover:bg-purple-700 transition-all"
+          >
+            <Upload size={16} /> Ko'p yuklash
           </button>
           <button
             onClick={() => navigate("/admin/questions/new")}
