@@ -742,3 +742,73 @@ export const updateUserGoals = (userId: string, goals: any) => {
   safeSet(STORAGE_KEYS.USER_GOALS, allGoals);
   return allGoals[index >= 0 ? index : allGoals.length - 1];
 };
+// ==================== PREMIUM TIZIMI ====================
+
+const PREMIUM_KEY = 'avtotest_premium';
+const DAILY_TEST_KEY = 'avtotest_daily_tests';
+const FREE_DAILY_LIMIT = 3; // Kunlik bepul testlar soni
+
+// Premium ma'lumotlarini olish
+export const getPremiumInfo = () => {
+  return safeGet(PREMIUM_KEY, { active: false, expiresAt: null, code: null });
+};
+
+// Premium kodini tekshirish va faollashtirish
+export const activatePremiumCode = (code: string): { success: boolean; message: string; expiresAt?: string } => {
+  // Kod formati: PREM-XXXX-DAYS (masalan: PREM-A1B2-7 = 7 kun)
+  const parts = code.trim().toUpperCase().split('-');
+  if (parts.length !== 3 || parts[0] !== 'PREM') {
+    return { success: false, message: "Kod noto'g'ri formatda!" };
+  }
+  
+  const days = parseInt(parts[2]);
+  if (isNaN(days) || days <= 0) {
+    return { success: false, message: "Kod yaroqsiz!" };
+  }
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+  
+  safeSet(PREMIUM_KEY, { active: true, expiresAt, code: code.trim().toUpperCase() });
+  return { success: true, message: `Premium ${days} kunga faollashtirildi!`, expiresAt };
+};
+
+// Premium faolmi?
+export const isPremiumActive = (): boolean => {
+  const info = getPremiumInfo();
+  if (!info.active || !info.expiresAt) return false;
+  return new Date(info.expiresAt) > new Date();
+};
+
+// Kunlik test limitini tekshirish
+export const getDailyTestInfo = (): { used: number; limit: number; canTest: boolean } => {
+  if (isPremiumActive()) {
+    return { used: 0, limit: 999, canTest: true };
+  }
+  const today = new Date().toDateString();
+  const data = safeGet(DAILY_TEST_KEY, { date: today, count: 0 });
+  
+  // Yangi kun bo'lsa reset qilish
+  if (data.date !== today) {
+    safeSet(DAILY_TEST_KEY, { date: today, count: 0 });
+    return { used: 0, limit: FREE_DAILY_LIMIT, canTest: true };
+  }
+  
+  return {
+    used: data.count,
+    limit: FREE_DAILY_LIMIT,
+    canTest: data.count < FREE_DAILY_LIMIT
+  };
+};
+
+// Kunlik test sonini oshirish
+export const incrementDailyTest = () => {
+  if (isPremiumActive()) return;
+  const today = new Date().toDateString();
+  const data = safeGet(DAILY_TEST_KEY, { date: today, count: 0 });
+  if (data.date !== today) {
+    safeSet(DAILY_TEST_KEY, { date: today, count: 1 });
+  } else {
+    safeSet(DAILY_TEST_KEY, { date: today, count: data.count + 1 });
+  }
+};
