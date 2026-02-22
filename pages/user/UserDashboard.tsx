@@ -23,6 +23,10 @@ import {
   getResults,
   getUserProgress,
   checkAndAwardBadges,
+  getDailyTestInfo,
+  isPremiumActive,
+  activatePremiumCode,
+  getPremiumInfo,
 } from "../../services/db";
 import { useAuth } from "../../context/AuthContext";
 import { useUI } from "../../context/UIContext";
@@ -37,6 +41,11 @@ const UserDashboard: React.FC = () => {
   const [questionCount, setQuestionCount] = useState(20);
   const [showDonation, setShowDonation] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumCode, setPremiumCode] = useState("");
+  const [premiumMsg, setPremiumMsg] = useState<{type: "success"|"error", text: string} | null>(null);
+  const [dailyInfo, setDailyInfo] = useState(getDailyTestInfo());
+  const [premiumInfo, setPremiumInfo] = useState(getPremiumInfo());
 
   useEffect(() => {
     if (user) {
@@ -46,7 +55,25 @@ const UserDashboard: React.FC = () => {
     }
   }, [user]);
 
+  const handleActivatePremium = () => {
+    if (!premiumCode.trim()) return;
+    const result = activatePremiumCode(premiumCode);
+    if (result.success) {
+      setPremiumMsg({ type: "success", text: result.message });
+      setPremiumInfo(getPremiumInfo());
+      setDailyInfo(getDailyTestInfo());
+      setTimeout(() => { setShowPremiumModal(false); setPremiumMsg(null); setPremiumCode(""); }, 2000);
+    } else {
+      setPremiumMsg({ type: "error", text: result.message });
+    }
+  };
+
   const startTest = () => {
+    const info = getDailyTestInfo();
+    if (!info.canTest) {
+      setShowPremiumModal(true);
+      return;
+    }
     navigate(`/quiz?count=${questionCount}`);
   };
 
