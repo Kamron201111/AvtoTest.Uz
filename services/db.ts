@@ -746,7 +746,7 @@ export const updateUserGoals = (userId: string, goals: any) => {
 
 const PREMIUM_KEY = 'avtotest_premium';
 const DAILY_TEST_KEY = 'avtotest_daily_tests';
-const FREE_DAILY_LIMIT = 3; // Kunlik bepul testlar soni
+const FREE_DAILY_LIMIT = 20; // Kunlik bepul testlar soni
 
 // Premium ma'lumotlarini olish
 export const getPremiumInfo = () => {
