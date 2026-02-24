@@ -1,99 +1,90 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { User, AuthState, Role } from "../types";
-import { initDB, updateUser, updateLastActive, getUsers } from "../services/db";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, AuthState, Role } from '../types';
+import {
+  loginUser,
+  registerUser,
+  updateUserProfile as sbUpdateProfile,
+  updateLastActive,
+  getUserById,
+} from '../services/supabase';
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      initDB();
-      const storedUser = localStorage.getItem("avtotest_current_user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch (e) {
-      console.error("Auth initialization error", e);
-      return null;
-    }
-  });
+const SESSION_KEY = 'avtotest_session_user_id';
 
-  // Security Check & Data Sync
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Sahifa ochilganda sessiyani tiklash
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const savedId = localStorage.getItem(SESSION_KEY);
+        if (savedId) {
+          const userData = await getUserById(savedId);
+          if (userData) {
+            setUser(userData);
+            updateLastActive(userData.id);
+          } else {
+            localStorage.removeItem(SESSION_KEY);
+          }
+        }
+      } catch (e) {
+        console.error('Session restore error', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    restoreSession();
+  }, []);
+
+  // Har daqiqada online statusni yangilash
   useEffect(() => {
     if (!user) return;
-
-    // 1. Online Status (Periodically update my status)
-    const onlineInterval = setInterval(() => {
-      updateLastActive(user.id);
-    }, 60000); // Every minute
-    updateLastActive(user.id); // Immediate update on mount
-
-    // 2. Poll Database for Deletion (Single Tab fallback)
-    const securityInterval = setInterval(() => {
-      const allUsers = getUsers();
-      const me = allUsers.find((u) => u.id === user.id);
-
-      if (!me) {
-        console.warn("User deleted from DB. Logging out...");
-        logout();
-      } else if (me.password !== user.password && user.role !== Role.ADMIN) {
-        // Optional: Force logout if password changed by someone else (not typical here but good for security)
-      }
-    }, 2000);
-
-    // 3. Cross-Tab Synchronization (The Fix for "Boshqa CDD" on same machine)
-    // If Admin deletes user in Tab A, Tab B (this user) sees the storage event and logs out immediately.
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "avtotest_users") {
-        const newUsers = e.newValue ? JSON.parse(e.newValue) : [];
-        const stillExists = newUsers.some((u: User) => u.id === user.id);
-        if (!stillExists) {
-          logout();
-        }
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      clearInterval(onlineInterval);
-      clearInterval(securityInterval);
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    const interval = setInterval(() => updateLastActive(user.id), 60000);
+    return () => clearInterval(interval);
   }, [user?.id]);
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("avtotest_current_user", JSON.stringify(userData));
+    localStorage.setItem(SESSION_KEY, userData.id);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("avtotest_current_user");
-    window.location.href = "#/"; // Force redirect to home
+    localStorage.removeItem(SESSION_KEY);
+    window.location.href = '#/';
   };
 
-  const updateUserProfile = (updatedUser: User) => {
-    setUser(updatedUser);
-    localStorage.setItem("avtotest_current_user", JSON.stringify(updatedUser));
-    updateUser(updatedUser);
+  const updateProfile = async (updatedUser: User) => {
+    const success = await sbUpdateProfile(updatedUser);
+    if (success) {
+      setUser(updatedUser);
+      localStorage.setItem(SESSION_KEY, updatedUser.id);
+    }
+    return success;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-semibold">AvtoTest.Uz yuklanmoqda...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        logout,
-        updateUserProfile,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      login,
+      logout,
+      updateUserProfile: updateProfile as any,
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -101,8 +92,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+
+// Login sahifasi uchun helper funksiyalar
+export { loginUser, registerUser };
