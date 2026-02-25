@@ -1,0 +1,79 @@
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { LayoutGrid, BookOpen, Steering, Star, Settings } from "lucide-react";
+
+// Rasmda ko'ringanidek 5 ta bo'lim:
+// Umumiy | YHQ | Ta'lim (markazda katta) | Kurslar | Sozlamalar
+
+const NAV_ITEMS = [
+  { path: "/user", icon: LayoutGrid, label: "Umumiy" },
+  { path: "/topics", icon: BookOpen, label: "YHQ" },
+  { path: "/quiz?count=20", icon: null, label: "Ta'lim", center: true },
+  { path: "/leaderboard", icon: Star, label: "Kurslar" },
+  { path: "/profile", icon: Settings, label: "Sozlamalar" },
+];
+
+const BottomNav: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Shadow yuqoridan */}
+      <div className="h-4 bg-gradient-to-t from-white/80 dark:from-slate-900/80 to-transparent pointer-events-none" />
+      
+      <nav className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-2 pb-safe">
+        <div className="max-w-lg mx-auto flex items-end justify-around h-16">
+          {NAV_ITEMS.map((item) => {
+            const isActive = location.pathname === item.path.split("?")[0];
+
+            // Markaziy katta tugma
+            if (item.center) {
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className="relative -top-5 flex flex-col items-center"
+                >
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-blue-300 dark:shadow-blue-900 border-4 border-white dark:border-slate-900 transition-transform active:scale-95">
+                    {/* Steering wheel icon */}
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <circle cx="12" cy="12" r="3"/>
+                      <line x1="12" y1="2" x2="12" y2="9"/>
+                      <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/>
+                      <line x1="19.07" y1="4.93" x2="14.83" y2="9.17"/>
+                    </svg>
+                  </div>
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-1">{item.label}</span>
+                </button>
+              );
+            }
+
+            const Icon = item.icon!;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path.split("?")[0])}
+                className="flex flex-col items-center gap-0.5 py-2 px-3 transition-all"
+              >
+                <div className={`p-1.5 rounded-xl transition-all ${isActive ? "bg-blue-100 dark:bg-blue-900/40" : ""}`}>
+                  <Icon
+                    size={22}
+                    className={`transition-colors ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`}
+                    strokeWidth={isActive ? 2.5 : 1.8}
+                  />
+                </div>
+                <span className={`text-[10px] font-semibold transition-colors ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+export default BottomNav;
