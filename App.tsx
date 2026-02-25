@@ -14,11 +14,9 @@ import Result from "./pages/user/Result";
 import History from "./pages/user/History";
 import Profile from "./pages/user/Profile";
 import Leaderboard from "./pages/user/Leaderboard";
-import Badges from "./pages/user/Badges";
-import Topics from "./pages/user/Topics";
-import Friends from "./pages/user/Friends";
-import Goals from "./pages/user/Goals";
-import StudyMaterials from "./pages/user/StudyMaterials";
+import YHQ from "./pages/user/YHQ";
+import TalimPage from "./pages/user/TalimPage";
+import Sozlamalar from "./pages/user/Sozlamalar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import { QuestionList, QuestionForm } from "./pages/admin/QuestionManager";
 import Chat from "./pages/Chat";
@@ -32,7 +30,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: Role[] }) => {
   return <Outlet />;
 };
 
-// Admin uchun — yuqori navbar bilan
+// Admin — yuqori navbar bilan
 const AdminLayout = () => (
   <>
     <Navbar />
@@ -40,20 +38,18 @@ const AdminLayout = () => (
   </>
 );
 
-// User uchun — pastki navigatsiya bilan, navbar yo'q
+// User — pastki BottomNav bilan, navbar YO'Q
 const UserLayout = () => (
   <>
-    <div className="pb-20"> {/* Bottom nav uchun joy */}
+    <div className="pb-20">
       <Outlet />
     </div>
     <BottomNav />
   </>
 );
 
-// Quiz va Result uchun — bottom nav YO'Q (to'liq ekran)
-const FullScreenLayout = () => (
-  <Outlet />
-);
+// To'liq ekran — Quiz, Result (nav yo'q)
+const FullScreen = () => <Outlet />;
 
 const App: React.FC = () => {
   return (
@@ -65,29 +61,29 @@ const App: React.FC = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
 
-            {/* USER routes — bottom nav bilan */}
+            {/* === USER ROUTES === */}
             <Route element={<ProtectedRoute allowedRoles={[Role.USER]} />}>
+
+              {/* Bottom Nav ko'rinadigan sahifalar */}
               <Route element={<UserLayout />}>
                 <Route path="/user" element={<UserDashboard />} />
-                <Route path="/history" element={<History />} />
+                <Route path="/yhq" element={<YHQ />} />
+                <Route path="/talim" element={<TalimPage />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/badges" element={<Badges />} />
-                <Route path="/topics" element={<Topics />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/goals" element={<Goals />} />
-                <Route path="/study-materials" element={<StudyMaterials />} />
-                <Route path="/chat" element={<Chat />} />
+                <Route path="/sozlamalar" element={<Sozlamalar />} />
+                <Route path="/history" element={<History />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/chat" element={<Chat />} />
               </Route>
 
-              {/* Quiz va Result — to'liq ekran, bottom nav yo'q */}
-              <Route element={<FullScreenLayout />}>
+              {/* To'liq ekran (bottom nav yo'q) */}
+              <Route element={<FullScreen />}>
                 <Route path="/quiz" element={<Quiz />} />
                 <Route path="/result" element={<Result />} />
               </Route>
             </Route>
 
-            {/* ADMIN routes — top navbar bilan */}
+            {/* === ADMIN ROUTES === */}
             <Route element={<ProtectedRoute allowedRoles={[Role.ADMIN]} />}>
               <Route element={<AdminLayout />}>
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -95,13 +91,6 @@ const App: React.FC = () => {
                 <Route path="/admin/questions/:id" element={<QuestionForm />} />
                 <Route path="/admin/messages" element={<AdminMessages />} />
                 <Route path="/admin/chat/:userId" element={<AdminChat />} />
-              </Route>
-            </Route>
-
-            {/* Shared profile — user uchun bottom nav bilan */}
-            <Route element={<ProtectedRoute allowedRoles={[Role.USER, Role.ADMIN]} />}>
-              <Route element={<FullScreenLayout />}>
-                <Route path="/profile" element={<Profile />} />
               </Route>
             </Route>
           </Routes>
