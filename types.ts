@@ -6,9 +6,9 @@ export enum Role {
 
 export interface User {
   id: string;
-  name: string;         // Login username, e.g. Kamron201
-  fullName?: string;    // Ism va Familya
-  phone?: string;       // Telefon raqam: +998901234567
+  name: string;
+  fullName?: string;
+  phone?: string;
   password?: string;
   avatar?: string;
   role: Role;
@@ -25,11 +25,12 @@ export interface Question {
     B: string;
     C: string;
     D: string;
+    E?: string; // F5 — ixtiyoriy 5-variant
   };
-  correctAnswer: 'A' | 'B' | 'C' | 'D';
+  correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
   image?: string;
   category?: string;
-  description?: string; // Premium foydalanuvchilar uchun tushuntirish
+  description?: string;
 }
 
 export interface TestResultDetail {
@@ -48,7 +49,7 @@ export interface TestResult {
   scorePercentage: number;
   timeSpentSeconds: number;
   details: TestResultDetail[];
-  questions?: Question[]; // Premium xatolar tahlili uchun
+  questions?: Question[];
 }
 
 export interface ActivityLog {
@@ -102,24 +103,12 @@ export interface Friend {
   addedAt: string;
 }
 
-export interface Challenge {
+export interface StudyMaterial {
   id: string;
-  challengerId: string;
-  challengedId: string;
-  status: 'pending' | 'accepted' | 'completed';
-  questionCount: number;
-  challengerScore?: number;
-  challengedScore?: number;
-  createdAt: string;
-  expiresAt: string;
-}
-
-export interface Bookmark {
-  id: string;
-  userId: string;
-  questionId: string;
-  note?: string;
-  createdAt: string;
+  title: string;
+  category: string;
+  type: 'article' | 'video' | 'quiz';
+  content: string;
 }
 
 export interface UserGoal {
@@ -127,12 +116,4 @@ export interface UserGoal {
   dailyTestTarget: number;
   accuracyTarget: number;
   weeklyTestTarget: number;
-}
-
-export interface StudyMaterial {
-  id: string;
-  title: string;
-  category: string;
-  type: 'article' | 'video' | 'quiz';
-  content: string;
 }
