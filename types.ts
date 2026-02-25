@@ -6,13 +6,15 @@ export enum Role {
 
 export interface User {
   id: string;
-  name: string;
+  name: string;         // Login username, e.g. Kamron201
+  fullName?: string;    // Ism va Familya
+  phone?: string;       // Telefon raqam: +998901234567
   password?: string;
-  avatar?: string; // Base64 image string
+  avatar?: string;
   role: Role;
   createdAt: string;
-  totalPoints: number; // Accumulated score from tests
-  lastActive?: string; // Timestamp for online status
+  totalPoints: number;
+  lastActive?: string;
 }
 
 export interface Question {
@@ -26,7 +28,8 @@ export interface Question {
   };
   correctAnswer: 'A' | 'B' | 'C' | 'D';
   image?: string;
-  category?: string; // Savol kategoriyasi: 'jarimalar', 'belgilar', 'umumiy' va h.k.
+  category?: string;
+  description?: string; // Premium foydalanuvchilar uchun tushuntirish
 }
 
 export interface TestResultDetail {
@@ -45,6 +48,7 @@ export interface TestResult {
   scorePercentage: number;
   timeSpentSeconds: number;
   details: TestResultDetail[];
+  questions?: Question[]; // Premium xatolar tahlili uchun
 }
 
 export interface ActivityLog {
