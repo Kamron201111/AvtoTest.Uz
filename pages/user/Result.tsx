@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TestResult, Question } from "../../types";
-import { CheckCircle, XCircle, RotateCcw, Home, AlertTriangle, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle, XCircle, RotateCcw, Home, AlertTriangle, Lock, ChevronDown, ChevronUp, Star } from "lucide-react";
 import { useUI } from "../../context/UIContext";
 import { useAuth } from "../../context/AuthContext";
 import { isPremiumActive } from "../../services/supabase";
 
-const EXPLANATIONS: Record<string, string> = {
-  qoidalar: "Yo'l harakati qoidalari bo'yicha: ",
-  belgilar: "Yo'l belgilari bo'yicha: ",
-  jarimalar: "Jarima miqdorlari bo'yicha: ",
-  xavfsizlik: "Xavfsizlik qoidalari bo'yicha: ",
-  texnik: "Transport vositasi texnik holatiga doir: ",
-  "birinchi-yordam": "Birinchi tibbiy yordam bo'yicha: ",
-  umumiy: "Umumiy qoidalar bo'yicha: ",
+const CATEGORY_LABEL: Record<string, string> = {
+  qoidalar: "Yo'l harakati qoidalari",
+  belgilar: "Yo'l belgilari",
+  jarimalar: "Jarimalar",
+  xavfsizlik: "Xavfsizlik qoidalari",
+  texnik: "Texnik bilim",
+  "birinchi-yordam": "Birinchi tibbiy yordam",
+  umumiy: "Umumiy qoidalar",
 };
 
-const LEGAL_NOTES: Record<string, string> = {
-  jarimalar: "Jarima miqdori O'zbekiston Respublikasining YHQ ga muvofiq belgilangan.",
+const DEFAULT_EXPLANATION: Record<string, string> = {
+  qoidalar: "Yo'l harakati qoidalari bo'yicha: To'g'ri javob",
+  belgilar: "Yo'l belgilari bo'yicha: To'g'ri javob",
+  jarimalar: "Jarima miqdorlari bo'yicha: To'g'ri javob",
+  xavfsizlik: "Xavfsizlik qoidalari bo'yicha: To'g'ri javob",
+  texnik: "Transport vositasi texnik holati bo'yicha: To'g'ri javob",
+  "birinchi-yordam": "Birinchi tibbiy yordam bo'yicha: To'g'ri javob",
+  umumiy: "Umumiy qoidalar bo'yicha: To'g'ri javob",
+};
+
+const LEGAL_NOTE: Record<string, string> = {
+  jarimalar: "O'zbekiston Respublikasi YHQ ga muvofiq.",
   belgilar: "Bu belgi yo'l harakati ishtirokchilarini xabardor qilish uchun o'rnatiladi.",
-  qoidalar: "Bu qoida YHQ ning tegishli moddasi asosida amal qiladi.",
+  qoidalar: "YHQ ning tegishli moddasi asosida amal qiladi.",
   xavfsizlik: "Xavfsizlik talablariga rioya qilish majburiydir.",
   texnik: "Transport vositasining texnik holati YHQ talablariga mos bo'lishi shart.",
   "birinchi-yordam": "Birinchi tibbiy yordam ko'rsatish qonuniy majburiyat hisoblanadi.",
@@ -31,6 +41,7 @@ const Result: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useUI();
   const { user } = useAuth();
+
   const result = location.state?.result as TestResult;
   const passedQuestions = location.state?.questions as Question[] | undefined;
   const [openErrorIdx, setOpenErrorIdx] = useState<number | null>(null);
@@ -53,103 +64,139 @@ const Result: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-6">
-      <div className="max-w-2xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-8">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6">
 
-        {/* Natija */}
-        <div className="text-center space-y-3 sm:space-y-4">
-          <div className={`w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full flex items-center justify-center ${passed ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}>
-            {passed ? <CheckCircle size={40} className="sm:w-12 sm:h-12" /> : <XCircle size={40} className="sm:w-12 sm:h-12" />}
+        {/* Natija header */}
+        <div className="text-center space-y-4">
+          <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center shadow-xl ${passed ? "bg-green-100 dark:bg-green-900/40 text-green-600" : "bg-red-100 dark:bg-red-900/40 text-red-600"}`}>
+            {passed ? <CheckCircle size={44} /> : <XCircle size={44} />}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">
               {passed ? t("res_congrats") : t("res_fail")}
             </h1>
-            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
+            <p className="text-slate-500 dark:text-slate-400">
               {t("res_score_text", { total: result.totalQuestions, correct: result.correctCount })}
             </p>
           </div>
-          <div className="text-4xl sm:text-5xl font-black text-slate-800 dark:text-white">{result.scorePercentage}%</div>
-          <div className="flex justify-center gap-4 text-sm text-slate-500">
-            <span>⏱️ {Math.floor(result.timeSpentSeconds / 60)}m {result.timeSpentSeconds % 60}s</span>
-            <span>✅ {result.correctCount} to'g'ri</span>
-            <span>❌ {wrongDetails.length} xato</span>
+          <div className={`text-5xl sm:text-6xl font-black ${passed ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
+            {result.scorePercentage}%
           </div>
+          <div className="flex justify-center gap-4 sm:gap-6 text-sm text-slate-500 dark:text-slate-400 flex-wrap">
+            <span className="flex items-center gap-1">⏱️ {Math.floor(result.timeSpentSeconds / 60)}m {result.timeSpentSeconds % 60}s</span>
+            <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-semibold">✅ {result.correctCount} to'g'ri</span>
+            <span className="flex items-center gap-1 text-red-500 dark:text-red-400 font-semibold">❌ {wrongDetails.length} xato</span>
+          </div>
+          {!passed && (
+            <div className="text-sm text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+              💡 O'tish uchun kamida <strong>85%</strong> to'plash kerak. Yana urinib ko'ring!
+            </div>
+          )}
         </div>
 
         {/* Xatolar tahlili */}
         {wrongDetails.length > 0 && (
-          <div className="w-full rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-orange-50 dark:bg-orange-900/20 p-3 sm:p-4 flex items-center gap-2 border-b border-orange-100 dark:border-orange-900">
-              <AlertTriangle className="text-orange-500 flex-shrink-0" size={18} />
-              <span className="font-bold text-orange-700 dark:text-orange-400 text-sm sm:text-base">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 flex items-center gap-2 border-b border-orange-100 dark:border-orange-900">
+              <AlertTriangle className="text-orange-500 flex-shrink-0" size={20} />
+              <span className="font-bold text-orange-700 dark:text-orange-400 text-base">
                 Xatolar tahlili ({wrongDetails.length} ta xato)
               </span>
               {!isPremium && (
-                <span className="ml-auto flex items-center gap-1 text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full font-bold">
-                  <Lock size={10} /> Premium
+                <span className="ml-auto flex items-center gap-1 text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-full font-bold border border-amber-200 dark:border-amber-700">
+                  <Star size={10} className="fill-current" /> Premium
                 </span>
               )}
             </div>
 
-            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
               {wrongDetails.map((detail, idx) => {
                 const q = getQuestion(detail.questionId);
                 const isOpen = openErrorIdx === idx;
+                const category = q?.category || "umumiy";
 
                 return (
-                  <div key={idx} className="bg-white dark:bg-slate-800">
-                    <button onClick={() => setOpenErrorIdx(isOpen ? null : idx)}
+                  <div key={idx}>
+                    <button
+                      onClick={() => setOpenErrorIdx(isOpen ? null : idx)}
                       className="w-full p-3 sm:p-4 flex items-start gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all">
-                      <span className="flex-shrink-0 w-6 h-6 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center text-xs font-black">{idx + 1}</span>
+                      <span className="flex-shrink-0 w-6 h-6 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center text-xs font-black">
+                        {idx + 1}
+                      </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300 line-clamp-2">
                           {q ? q.questionText : `Savol #${idx + 1}`}
                         </p>
                         <div className="flex gap-2 mt-1 flex-wrap">
-                          <span className="text-xs text-red-500">Sizning: <strong>{detail.userAnswer || "javob berilmadi"}</strong></span>
-                          <span className="text-xs text-green-600">To'g'ri: <strong>{detail.correctAnswer}</strong></span>
+                          <span className="text-xs text-red-500 dark:text-red-400">
+                            Sizning: <strong>{detail.userAnswer || "javob berilmadi"}</strong>
+                          </span>
+                          <span className="text-xs text-green-600 dark:text-green-400">
+                            To'g'ri: <strong>{detail.correctAnswer}</strong>
+                          </span>
+                          {q?.category && (
+                            <span className="text-xs text-blue-500 dark:text-blue-400">
+                              {CATEGORY_LABEL[q.category] || q.category}
+                            </span>
+                          )}
                         </div>
                       </div>
                       {isOpen ? <ChevronUp size={16} className="text-slate-400 flex-shrink-0 mt-1" /> : <ChevronDown size={16} className="text-slate-400 flex-shrink-0 mt-1" />}
                     </button>
 
                     {isOpen && q && (
-                      <div className="px-4 pb-4 space-y-3">
-                        {/* Variantlar */}
+                      <div className="px-4 pb-4 space-y-3 bg-slate-50 dark:bg-slate-700/30">
+                        {/* Savol rasmi */}
+                        {q.image && (
+                          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+                            <img src={q.image} alt="Savol rasmi" className="w-full max-h-48 object-contain bg-white" />
+                          </div>
+                        )}
+
+                        {/* Barcha variantlar */}
                         <div className="grid gap-1.5">
                           {(["A", "B", "C", "D"] as const).map(opt => (
-                            <div key={opt} className={`flex items-center gap-2 p-2 rounded-lg text-xs font-medium ${
-                              opt === detail.correctAnswer ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" :
-                              opt === detail.userAnswer ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" :
-                              "bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                            <div key={opt} className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-medium ${
+                              opt === detail.correctAnswer
+                                ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
+                                : opt === detail.userAnswer
+                                  ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
+                                  : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600"
                             }`}>
-                              <span className="font-black w-4">{opt}.</span>
-                              <span>{q.options[opt]}</span>
-                              {opt === detail.correctAnswer && <CheckCircle size={12} className="ml-auto" />}
-                              {opt === detail.userAnswer && opt !== detail.correctAnswer && <XCircle size={12} className="ml-auto" />}
+                              <span className="font-black w-5 flex-shrink-0">{opt}.</span>
+                              <span className="flex-1">{q.options[opt]}</span>
+                              {opt === detail.correctAnswer && <CheckCircle size={13} className="flex-shrink-0" />}
+                              {opt === detail.userAnswer && opt !== detail.correctAnswer && <XCircle size={13} className="flex-shrink-0" />}
                             </div>
                           ))}
                         </div>
 
                         {/* Premium tushuntirish */}
                         {isPremium ? (
-                          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                            <p className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1">📖 Tushuntirish:</p>
-                            <p className="text-xs text-blue-600 dark:text-blue-300">
-                              {EXPLANATIONS[q.category || "umumiy"]}To'g'ri javob <strong>{detail.correctAnswer}</strong> — "{q.options[detail.correctAnswer as keyof typeof q.options]}".{" "}
-                              {LEGAL_NOTES[q.category || "umumiy"]}
-                            </p>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3.5">
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <Star size={13} className="text-blue-600 fill-current" />
+                              <p className="text-xs font-bold text-blue-700 dark:text-blue-400">Tushuntirish:</p>
+                            </div>
+                            {q.description ? (
+                              <p className="text-xs text-blue-600 dark:text-blue-300 leading-relaxed">{q.description}</p>
+                            ) : (
+                              <p className="text-xs text-blue-600 dark:text-blue-300 leading-relaxed">
+                                {DEFAULT_EXPLANATION[category]} — <strong>"{q.options[detail.correctAnswer as keyof typeof q.options]}"</strong>.{" "}
+                                {LEGAL_NOTE[category]}
+                              </p>
+                            )}
                           </div>
                         ) : (
-                          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 cursor-pointer"
+                          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3.5 cursor-pointer hover:opacity-90 transition-all"
                             onClick={() => navigate("/user")}>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Lock size={12} className="text-amber-600" />
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <Lock size={13} className="text-amber-600" />
                               <p className="text-xs font-bold text-amber-700 dark:text-amber-400">Premium tushuntirish</p>
                             </div>
-                            <p className="text-xs text-amber-600 dark:text-amber-300">
-                              ⭐ Premium obuna bilan har bir xatongizga batafsil tushuntirish va qonun moddasi ko'rinadi.
+                            <p className="text-xs text-amber-600 dark:text-amber-300 leading-relaxed">
+                              ⭐ Premium obuna bilan har bir xatongizga batafsil tushuntirish, qonun moddasi va maslahatlar ko'rinadi. Bosing!
                             </p>
                           </div>
                         )}
@@ -163,16 +210,22 @@ const Result: React.FC = () => {
         )}
 
         {/* Tugmalar */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <button onClick={() => navigate("/user")}
-            className="py-2.5 sm:py-3 px-3 sm:px-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg sm:rounded-xl font-bold hover:border-slate-300 transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
+            className="py-3 px-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:border-slate-300 transition-all flex items-center justify-center gap-2 text-sm">
             <Home size={16} /> {t("res_home")}
           </button>
           <button onClick={() => navigate("/quiz?count=20")}
-            className="py-2.5 sm:py-3 px-3 sm:px-4 bg-blue-600 text-white rounded-lg sm:rounded-xl font-bold hover:bg-blue-700 shadow-lg transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
+            className="py-3 px-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
             <RotateCcw size={16} /> {t("res_retry")}
           </button>
         </div>
+
+        {/* History link */}
+        <button onClick={() => navigate("/history")}
+          className="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+          <AlertTriangle size={14} /> Tarix va barcha natijalar
+        </button>
       </div>
     </div>
   );
