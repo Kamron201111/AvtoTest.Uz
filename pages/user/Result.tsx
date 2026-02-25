@@ -156,7 +156,7 @@ const Result: React.FC = () => {
 
                         {/* Barcha variantlar */}
                         <div className="grid gap-1.5">
-                          {(["A", "B", "C", "D"] as const).map(opt => (
+                          {(["A", "B", "C", "D", ...(q.options.E ? ["E"] : [])] as const).map(opt => (
                             <div key={opt} className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-medium ${
                               opt === detail.correctAnswer
                                 ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
@@ -164,7 +164,7 @@ const Result: React.FC = () => {
                                   ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
                                   : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600"
                             }`}>
-                              <span className="font-black w-5 flex-shrink-0">{opt}.</span>
+                              <span className="font-black w-5 flex-shrink-0">{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5"}[opt] || opt}.</span>
                               <span className="flex-1">{q.options[opt]}</span>
                               {opt === detail.correctAnswer && <CheckCircle size={13} className="flex-shrink-0" />}
                               {opt === detail.userAnswer && opt !== detail.correctAnswer && <XCircle size={13} className="flex-shrink-0" />}
