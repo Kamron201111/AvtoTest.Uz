@@ -166,7 +166,7 @@ export const bulkSaveQuestions = async (questions: Question[]): Promise<{ saved:
 const mapQuestion = (d: any): Question => ({
   id: d.id,
   questionText: d.question_text,
-  options: { A: d.option_a, B: d.option_b, C: d.option_c, D: d.option_d },
+  options: { A: d.option_a, B: d.option_b, C: d.option_c, D: d.option_d, ...(d.option_e ? { E: d.option_e } : {}) },
   correctAnswer: d.correct_answer,
   image: d.image || '',
   category: d.category || 'umumiy',
@@ -179,7 +179,7 @@ const mapQuestionToRow = (q: Question) => ({
   option_a: q.options.A,
   option_b: q.options.B,
   option_c: q.options.C,
-  option_d: q.options.D,
+  option_d: q.options.D, option_e: q.options.E || "",
   correct_answer: q.correctAnswer,
   image: q.image || '',
   category: q.category || 'umumiy',
