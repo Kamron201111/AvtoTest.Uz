@@ -54,7 +54,7 @@ const BulkImportModal: React.FC<{
         if (!item.questionText) throw new Error(`${i + 1}-savol: "questionText" yo'q`);
         if (!item.options?.A || !item.options?.B || !item.options?.C || !item.options?.D)
           throw new Error(`${i + 1}-savol: options ichida A, B, C, D bo'lishi kerak`);
-        if (!["A", "B", "C", "D"].includes(item.correctAnswer))
+        if (!["A", "B", "C", "D", "E"].includes(item.correctAnswer))
           throw new Error(`${i + 1}-savol: "correctAnswer" faqat A, B, C yoki D bo'lishi kerak`);
         return {
           id: "q_" + Date.now() + "_" + i + "_" + Math.random().toString(36).slice(2, 6),
@@ -575,7 +575,7 @@ export const QuestionForm: React.FC = () => {
   const isEdit = id && id !== "new";
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Question>({
-    id: "", questionText: "", options: { A: "", B: "", C: "", D: "" },
+    id: "", questionText: "", options: { A: "", B: "", C: "", D: "", E: "" },
     correctAnswer: "A", image: "", category: "umumiy", description: "",
   });
 
@@ -680,9 +680,9 @@ export const QuestionForm: React.FC = () => {
         {/* Variantlar */}
         <div className="space-y-3">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t("q_form_opts")}</label>
-          {(["A", "B", "C", "D"] as const).map(opt => (
+          {(["A", "B", "C", "D", "E"] as const).map(opt => (
             <div key={opt} className="flex gap-3 items-center">
-              <span className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded font-bold text-slate-500 dark:text-slate-300 flex-shrink-0">{opt}</span>
+              <span className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded font-bold text-slate-500 dark:text-slate-300 flex-shrink-0">{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5"}[opt]}</span>
               <input required type="text" placeholder={`${opt} varianti`} value={formData.options[opt]}
                 onChange={e => setFormData({ ...formData, options: { ...formData.options, [opt]: e.target.value } })}
                 className="flex-1 p-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
@@ -695,10 +695,11 @@ export const QuestionForm: React.FC = () => {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t("q_form_correct")}</label>
           <select value={formData.correctAnswer} onChange={e => setFormData({ ...formData, correctAnswer: e.target.value as any })}
             className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg outline-none">
-            <option value="A">Variant A</option>
-            <option value="B">Variant B</option>
-            <option value="C">Variant C</option>
-            <option value="D">Variant D</option>
+            <option value="A">Variant A (F1)</option>
+            <option value="B">Variant B (F2)</option>
+            <option value="C">Variant C (F3)</option>
+            <option value="D">Variant D (F4)</option>
+            <option value="E">Variant E (F5) — ixtiyoriy</option>
           </select>
         </div>
 
@@ -713,6 +714,7 @@ export const QuestionForm: React.FC = () => {
             placeholder="Bu savolga tushuntirish yozing (masalan: YHQ 63-moddasi bo'yicha aholi punktlarida tezlik 60 km/soatdan oshmasligi kerak...)"
             className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-400 outline-none text-sm" />
           <p className="text-xs text-slate-400 mt-1">Bu maydon ixtiyoriy. Xatolar tahlilida premium foydalanuvchilarga ko'rinadi.</p>
+          <p className="text-xs text-amber-500 mt-1">💡 F5 (E) varianti ham ixtiyoriy — yozilmasa ko'rinmaydi.</p>
         </div>
 
         <button type="submit" disabled={saving}
