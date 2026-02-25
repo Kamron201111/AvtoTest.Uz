@@ -1,4 +1,4 @@
-// services/supabase.ts — To'liq Supabase backend
+// services/supabase.ts — To'liq Supabase backend (tuzatilgan)
 import { createClient } from '@supabase/supabase-js';
 import { Question, TestResult, User, Role } from '../types';
 
@@ -25,20 +25,49 @@ export const loginUser = async (name: string, password: string): Promise<User | 
   const { data } = await supabase.from('users').select('*').eq('name', name).single();
   if (!data) return null;
   if (data.password !== hashed && data.password !== password) return null;
+  await supabase.from('users').update({ last_active: new Date().toISOString() }).eq('id', data.id);
   return mapUser(data);
 };
 
-export const registerUser = async (name: string, password: string): Promise<{ success: boolean; user?: User; message?: string }> => {
+export const registerUser = async (
+  name: string,
+  password: string,
+  fullName?: string,
+  phone?: string
+): Promise<{ success: boolean; user?: User; message?: string }> => {
+  // Login band emasligini tekshirish
   const { data: existing } = await supabase.from('users').select('id').eq('name', name).single();
-  if (existing) return { success: false, message: "Bu ism allaqachon band!" };
+  if (existing) return { success: false, message: "Bu login allaqachon band!" };
+
+  // Telefon band emasligini tekshirish
+  if (phone) {
+    const { data: phoneExists } = await supabase.from('users').select('id').eq('phone', phone).single();
+    if (phoneExists) return { success: false, message: "Bu telefon raqam allaqachon ro'yxatdan o'tgan!" };
+  }
 
   const id = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   const { data, error } = await supabase.from('users').insert({
-    id, name, password: hashPassword(password), role: 'USER', total_points: 0, avatar: '',
+    id,
+    name,
+    full_name: fullName || '',
+    phone: phone || '',
+    password: hashPassword(password),
+    role: 'USER',
+    total_points: 0,
+    avatar: '',
+    created_at: new Date().toISOString(),
   }).select().single();
 
-  if (error || !data) return { success: false, message: "Xatolik yuz berdi" };
+  if (error || !data) return { success: false, message: "Xatolik yuz berdi. Qayta urinib ko'ring." };
   return { success: true, user: mapUser(data) };
+};
+
+export const resetPasswordByPhone = async (phone: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+  const { data } = await supabase.from('users').select('id').eq('phone', phone).single();
+  if (!data) return { success: false, message: "Bu telefon raqam topilmadi!" };
+  const { error } = await supabase.from('users').update({ password: hashPassword(newPassword) }).eq('id', data.id);
+  if (error) return { success: false, message: "Xatolik yuz berdi!" };
+  return { success: true, message: "Parol muvaffaqiyatli yangilandi!" };
 };
 
 export const getUserById = async (userId: string): Promise<User | null> => {
@@ -52,7 +81,14 @@ export const getUsers = async (): Promise<User[]> => {
 };
 
 export const updateUserProfile = async (user: User): Promise<boolean> => {
-  const updateData: any = { name: user.name, avatar: user.avatar || '', last_active: new Date().toISOString() };
+  const updateData: any = {
+    name: user.name,
+    full_name: user.fullName || '',
+    phone: user.phone || '',
+    avatar: user.avatar || '',
+    last_active: new Date().toISOString(),
+    total_points: user.totalPoints || 0,
+  };
   if (user.password) {
     updateData.password = user.password.startsWith('hashed_') ? user.password : hashPassword(user.password);
   }
@@ -70,9 +106,16 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 };
 
 const mapUser = (d: any): User => ({
-  id: d.id, name: d.name, password: d.password, avatar: d.avatar || '',
-  role: d.role as Role, totalPoints: d.total_points || 0,
-  createdAt: d.created_at, lastActive: d.last_active,
+  id: d.id,
+  name: d.name,
+  fullName: d.full_name || '',
+  phone: d.phone || '',
+  password: d.password,
+  avatar: d.avatar || '',
+  role: d.role as Role,
+  totalPoints: d.total_points || 0,
+  createdAt: d.created_at,
+  lastActive: d.last_active,
 });
 
 // =================== SAVOLLAR ===================
@@ -90,7 +133,8 @@ export const getQuestionsByCategory = async (category: string): Promise<Question
 };
 
 export const saveQuestion = async (question: Question): Promise<boolean> => {
-  const { error } = await supabase.from('questions').upsert(mapQuestionToRow(question), { onConflict: 'id' });
+  const row = mapQuestionToRow(question);
+  const { error } = await supabase.from('questions').upsert(row, { onConflict: 'id' });
   return !error;
 };
 
@@ -110,32 +154,48 @@ export const bulkSaveQuestions = async (questions: Question[]): Promise<{ saved:
   for (let i = 0; i < questions.length; i += batchSize) {
     const batch = questions.slice(i, i + batchSize).map(q => ({
       ...mapQuestionToRow(q),
-      id: q.id || 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      id: q.id || ('q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7) + '_' + i),
     }));
     const { error } = await supabase.from('questions').upsert(batch, { onConflict: 'id' });
-    if (error) errors += batch.length; else saved += batch.length;
+    if (error) { console.error('Batch error:', error); errors += batch.length; }
+    else saved += batch.length;
   }
   return { saved, errors };
 };
 
 const mapQuestion = (d: any): Question => ({
-  id: d.id, questionText: d.question_text,
+  id: d.id,
+  questionText: d.question_text,
   options: { A: d.option_a, B: d.option_b, C: d.option_c, D: d.option_d },
-  correctAnswer: d.correct_answer, image: d.image || '', category: d.category || 'umumiy',
+  correctAnswer: d.correct_answer,
+  image: d.image || '',
+  category: d.category || 'umumiy',
+  description: d.description || '',
 });
 
 const mapQuestionToRow = (q: Question) => ({
-  id: q.id, question_text: q.questionText,
-  option_a: q.options.A, option_b: q.options.B, option_c: q.options.C, option_d: q.options.D,
-  correct_answer: q.correctAnswer, image: q.image || '', category: q.category || 'umumiy',
+  id: q.id,
+  question_text: q.questionText,
+  option_a: q.options.A,
+  option_b: q.options.B,
+  option_c: q.options.C,
+  option_d: q.options.D,
+  correct_answer: q.correctAnswer,
+  image: q.image || '',
+  category: q.category || 'umumiy',
+  description: q.description || '',
 });
 
 // =================== TEST NATIJALARI ===================
 export const saveResult = async (result: TestResult): Promise<boolean> => {
   const { error } = await supabase.from('test_results').insert({
-    id: result.id, user_id: result.userId, date: result.date,
-    total_questions: result.totalQuestions, correct_count: result.correctCount,
-    score_percentage: result.scorePercentage, time_spent_seconds: result.timeSpentSeconds || 0,
+    id: result.id,
+    user_id: result.userId,
+    date: result.date,
+    total_questions: result.totalQuestions,
+    correct_count: result.correctCount,
+    score_percentage: result.scorePercentage,
+    time_spent_seconds: result.timeSpentSeconds || 0,
     details: result.details,
   });
   if (!error) {
@@ -151,9 +211,14 @@ export const getResults = async (userId?: string): Promise<TestResult[]> => {
   if (userId) query = query.eq('user_id', userId);
   const { data } = await query.limit(500);
   return (data || []).map(d => ({
-    id: d.id, userId: d.user_id, date: d.date, totalQuestions: d.total_questions,
-    correctCount: d.correct_count, scorePercentage: d.score_percentage,
-    timeSpentSeconds: d.time_spent_seconds || 0, details: d.details || [],
+    id: d.id,
+    userId: d.user_id,
+    date: d.date,
+    totalQuestions: d.total_questions,
+    correctCount: d.correct_count,
+    scorePercentage: d.score_percentage,
+    timeSpentSeconds: d.time_spent_seconds || 0,
+    details: d.details || [],
   }));
 };
 
@@ -175,7 +240,9 @@ export const activatePremiumForUser = async (userId: string, days: number, plan:
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + days);
   const { error } = await supabase.from('premium_users').upsert({
-    user_id: userId, plan, activated_at: new Date().toISOString(),
+    user_id: userId,
+    plan,
+    activated_at: new Date().toISOString(),
     expires_at: expiresAt.toISOString(),
   }, { onConflict: 'user_id' });
   return !error;
@@ -207,10 +274,8 @@ export const getPremiumRequests = async (status?: string) => {
 export const approvePremiumRequest = async (requestId: string): Promise<boolean> => {
   const { data: req } = await supabase.from('premium_requests').select('*').eq('id', requestId).single();
   if (!req) return false;
-
   const success = await activatePremiumForUser(req.user_id, req.days, req.plan);
   if (!success) return false;
-
   await supabase.from('premium_requests').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', requestId);
   return true;
 };
@@ -224,11 +289,12 @@ export const rejectPremiumRequest = async (requestId: string): Promise<boolean> 
 
 export const getUserPremiumRequest = async (userId: string) => {
   const { data } = await supabase.from('premium_requests')
-    .select('*').eq('user_id', userId).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).single();
+    .select('*').eq('user_id', userId).eq('status', 'pending')
+    .order('created_at', { ascending: false }).limit(1).single();
   return data;
 };
 
-// =================== FAYL YUKLASH (screenshot) ===================
+// =================== FAYL YUKLASH ===================
 export const uploadScreenshot = async (file: File, userId: string): Promise<string | null> => {
   const ext = file.name.split('.').pop();
   const path = `screenshots/${userId}_${Date.now()}.${ext}`;
@@ -248,6 +314,7 @@ export const getDailyTestInfo = async (userId: string): Promise<{ used: number; 
   return { used, limit: FREE_DAILY_LIMIT, canTest: used < FREE_DAILY_LIMIT };
 };
 
+// FAQAT TEST TUGAGANDAN SO'NG chaqiriladi
 export const incrementDailyTest = async (userId: string): Promise<void> => {
   const premium = await isPremiumActive(userId);
   if (premium) return;
@@ -314,7 +381,7 @@ export const updateAdminPassword = async (newPass: string): Promise<void> => {
   await supabase.from('users').update({ password: hashPassword(newPass) }).eq('role', 'ADMIN');
 };
 
-// =================== REALTIME SUBSCRIPTION ===================
+// =================== REALTIME ===================
 export const subscribeToPremiumRequests = (callback: (payload: any) => void) => {
   return supabase
     .channel('premium_requests_channel')
