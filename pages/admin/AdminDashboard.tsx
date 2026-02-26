@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FileText, Users, Activity, Key, PlusCircle, List,
+  FileText, Users, BarChart2, Key, PlusCircle, List,
   Eye, EyeOff, Trash2, MessageSquare, Star, Clock,
   CheckCircle, XCircle, CreditCard, Settings, RefreshCw,
   AlertTriangle, ExternalLink,
@@ -114,7 +114,7 @@ const AdminDashboard: React.FC = () => {
   const pendingReqs = premiumRequests.filter(r => r.status === 'pending');
 
   const TABS: { id: AdminTab; label: string; icon: React.ElementType; badge?: number }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: Activity },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart2 },
     { id: 'premium', label: 'Premium', icon: Star, badge: pendingReqs.length },
     { id: 'users', label: 'Foydalanuvchilar', icon: Users },
     { id: 'settings', label: 'Sozlamalar', icon: Settings },
@@ -158,7 +158,7 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
                 { label: 'Savollar', value: stats.totalQuestions, icon: FileText, color: 'blue' },
-                { label: 'Testlar', value: stats.totalTests, icon: Activity, color: 'green' },
+                { label: 'Testlar', value: stats.totalTests, icon: BarChart2, color: 'green' },
                 { label: 'Foydalanuvchilar', value: stats.totalUsers, icon: Users, color: 'purple' },
                 { label: 'Premium faol', value: stats.activePremium, icon: Star, color: 'amber' },
                 { label: 'Kutilmoqda', value: stats.pendingRequests, icon: Clock, color: 'red' },
@@ -191,7 +191,7 @@ const AdminDashboard: React.FC = () => {
                 <span className="font-bold">YHQ Boblar</span>
               </button>
               <button onClick={() => navigate('/admin/kurslar')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
-                <Activity className="w-8 h-8 text-purple-500" />
+                <BarChart2 className="w-8 h-8 text-purple-500" />
                 <span className="font-bold">Kurslar</span>
               </button>
             </div>
