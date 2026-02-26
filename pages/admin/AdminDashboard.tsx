@@ -173,7 +173,7 @@ const AdminDashboard: React.FC = () => {
               ))}
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <button onClick={() => navigate('/admin/questions/new')} className="p-5 bg-blue-600 text-white rounded-2xl shadow-lg hover:bg-blue-700 flex flex-col items-center gap-2">
                 <PlusCircle className="w-8 h-8" />
                 <span className="font-bold">Savol qo'shish</span>
@@ -185,6 +185,14 @@ const AdminDashboard: React.FC = () => {
               <button onClick={() => navigate('/admin/messages')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
                 <MessageSquare className="w-8 h-8 text-slate-400" />
                 <span className="font-bold">Xabarlar</span>
+              </button>
+              <button onClick={() => navigate('/admin/yhq')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
+                <FileText className="w-8 h-8 text-indigo-400" />
+                <span className="font-bold">YHQ Boblar</span>
+              </button>
+              <button onClick={() => navigate('/admin/kurslar')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
+                <Activity className="w-8 h-8 text-purple-400" />
+                <span className="font-bold">Kurslar</span>
               </button>
             </div>
 
