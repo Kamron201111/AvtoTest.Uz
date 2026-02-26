@@ -103,7 +103,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleSaveSettings = async () => {
     setSavingSettings(true);
-    const keys = ['card_number', 'card_owner', 'card_type', 'price_1_hafta', 'price_1_oy', 'price_1_yil'];
+    const keys = ['card_number', 'card_owner', 'card_type', 'price_1_hafta', 'price_1_oy', 'price_1_yil', 'legal_shartnoma', 'legal_maxfiylik', 'legal_oferta'];
     await Promise.all(keys.map(k => setSetting(k, localSettings[k] || '')));
     setSettings({ ...localSettings });
     setSettingsMsg('✅ Sozlamalar saqlandi!');
@@ -392,6 +392,31 @@ const AdminDashboard: React.FC = () => {
                     <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 block">{label}</label>
                     <input type="number" value={localSettings[key] || ''} onChange={e => setLocalSettings(prev => ({ ...prev, [key]: e.target.value }))}
                       className="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:border-blue-500 transition-all" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ===== LEGAL MATNLAR ===== */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+              <h3 className="font-black text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-indigo-500" /> Huquqiy sahifalar matni
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { key: 'legal_shartnoma', label: '📄 Foydalanuvchi shartnomasi' },
+                  { key: 'legal_maxfiylik', label: '🔒 Maxfiylik siyosati' },
+                  { key: 'legal_oferta', label: '📋 Ommaviy oferta' },
+                ].map(({ key, label }) => (
+                  <div key={key}>
+                    <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 block">{label}</label>
+                    <textarea
+                      rows={5}
+                      value={localSettings[key] || ''}
+                      onChange={e => setLocalSettings(prev => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={`${label} matnini shu yerga kiriting...`}
+                      className="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:border-blue-500 transition-all resize-none text-sm"
+                    />
                   </div>
                 ))}
               </div>
