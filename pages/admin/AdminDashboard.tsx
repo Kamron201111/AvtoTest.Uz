@@ -187,11 +187,11 @@ const AdminDashboard: React.FC = () => {
                 <span className="font-bold">Xabarlar</span>
               </button>
               <button onClick={() => navigate('/admin/yhq')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
-                <FileText className="w-8 h-8 text-indigo-400" />
+                <FileText className="w-8 h-8 text-indigo-500" />
                 <span className="font-bold">YHQ Boblar</span>
               </button>
               <button onClick={() => navigate('/admin/kurslar')} className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl hover:shadow-md flex flex-col items-center gap-2">
-                <Activity className="w-8 h-8 text-purple-400" />
+                <Activity className="w-8 h-8 text-purple-500" />
                 <span className="font-bold">Kurslar</span>
               </button>
             </div>
