@@ -25,7 +25,7 @@ export interface Question {
     B: string;
     C: string;
     D: string;
-    E?: string; // F5 — ixtiyoriy 5-variant
+    E?: string;
   };
   correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
   image?: string;
@@ -103,17 +103,17 @@ export interface Friend {
   addedAt: string;
 }
 
+export interface UserGoal {
+  userId: string;
+  dailyTestTarget: number;
+  accuracyTarget: number;
+  weeklyTestTarget: number;
+}
+
 export interface StudyMaterial {
   id: string;
   title: string;
   category: string;
   type: 'article' | 'video' | 'quiz';
   content: string;
-}
-
-export interface UserGoal {
-  userId: string;
-  dailyTestTarget: number;
-  accuracyTarget: number;
-  weeklyTestTarget: number;
 }
