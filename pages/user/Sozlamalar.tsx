@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Globe, Star, LogOut, ChevronRight, Moon, Sun,
-  Shield, Check, AlertCircle, TrendingUp, FileText, Scroll,
+  Shield, Check, AlertCircle, TrendingUp, FileText, ScrollText,
   Clock, CheckCircle, XCircle, Copy, Upload, Loader2, X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -14,11 +14,11 @@ import {
 } from "../../services/supabase";
 import { TestResult } from "../../types";
 
-const LANGUAGES = [
+const LANGUAGES: { code: "uz"|"kr"|"ru"|"en"; label: string; flag: string }[] = [
   { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+  { code: "kr", label: "Кирилл", flag: "🇺🇿" },
   { code: "ru", label: "Русский", flag: "🇷🇺" },
   { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "kk", label: "Қазақша", flag: "🇰🇿" },
 ];
 
 type LegalPage = "shartnoma" | "maxfiylik" | "oferta" | null;
@@ -340,7 +340,7 @@ const Sozlamalar: React.FC = () => {
         {/* Huquqiy sahifalar */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
           {[
-            { key: "shartnoma" as LegalPage, icon: Scroll, label: "Foydalanuvchi shartnomasi" },
+            { key: "shartnoma" as LegalPage, icon: ScrollText, label: "Foydalanuvchi shartnomasi" },
             { key: "maxfiylik" as LegalPage, icon: Shield, label: "Maxfiylik siyosati" },
             { key: "oferta" as LegalPage, icon: FileText, label: "Ommaviy oferta" },
           ].map(({ key, icon: Icon, label }, i, arr) => (
