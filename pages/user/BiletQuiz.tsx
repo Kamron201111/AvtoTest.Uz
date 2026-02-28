@@ -309,7 +309,7 @@ const BiletQuiz: React.FC = () => {
 
           {/* Variantlar */}
           <div className="space-y-2.5">
-            {(["A", "B", "C", "D", ...(q.options.E ? ["E"] : [])] as const).map(opt => {
+            {(["A", ...(q.options.B ? ["B"] : []), ...(q.options.C ? ["C"] : []), ...(q.options.D ? ["D"] : []), ...(q.options.E ? ["E"] : []), ...(q.options.F ? ["F"] : [])] as const).map(opt => {
               let cls = "w-full p-3.5 rounded-xl border-2 flex items-center gap-3 transition-all text-left ";
               if (!isAnswered) {
                 cls += "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer";
