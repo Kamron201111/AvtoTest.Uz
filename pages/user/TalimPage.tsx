@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, BookOpen, AlertTriangle, Heart, Wrench, Car, DollarSign, Shield } from "lucide-react";
+import { Play, BookOpen, AlertTriangle, Heart, Wrench, Car, DollarSign, Shield, Ticket } from "lucide-react";
 import { getQuestions } from "../../services/supabase";
 import { useAuth } from "../../context/AuthContext";
 
@@ -165,6 +165,28 @@ const TalimPage: React.FC = () => {
             </p>
           </div>
         )}
+
+        {/* Biletlar bo'limi */}
+        <div className="mt-6">
+          <h2 className="font-black text-slate-800 dark:text-white text-base mb-3">
+            🎫 Imtihon Biletlari
+          </h2>
+          <button
+            onClick={() => navigate("/biletlar")}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:border-green-400 hover:shadow-md transition-all active:scale-[0.99]"
+          >
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
+              🎫
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-black text-slate-800 dark:text-white text-sm">Biletlar bo'yicha test</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-0.5 font-semibold">Har biletda 10 ta savol • GAI imtihon formati</p>
+            </div>
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
