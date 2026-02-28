@@ -98,12 +98,12 @@ const Quiz: React.FC = () => {
       details,
     };
 
-    // Test yakunlangandagina saqlash va increment
-    await saveResult(result);
-    await incrementDailyTest(user.id); // Faqat shu yerda!
-    await updateUserProfile({ ...user, totalPoints: (user.totalPoints || 0) + scorePercentage });
-
+    // Tez navigate - background da saqlash
     navigate("/result", { state: { result, questions } });
+    // Background da saqlash (navigatedan keyin)
+    saveResult(result);
+    incrementDailyTest(user.id);
+    updateUserProfile({ ...user, totalPoints: (user.totalPoints || 0) + scorePercentage });
   }, [answers, questions, totalTime, user, isFinished, navigate, updateUserProfile]);
 
   const handleSelectAnswer = (optionKey: string) => {
@@ -131,13 +131,13 @@ const Quiz: React.FC = () => {
         <h2 className="text-xl font-black text-slate-800 dark:text-white mb-3">Kunlik limit tugadi</h2>
         <p className="text-slate-500 dark:text-slate-400 mb-6 whitespace-pre-line">{limitError}</p>
         <div className="space-y-3">
-          <button onClick={() => navigate("/user")}
+          <button onClick={() => { navigate("/user"); setTimeout(() => { const el = document.querySelector("[data-premium]"); if (el) (el as HTMLElement).click(); }, 300); }}
             className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-black shadow-lg hover:opacity-90 transition-all">
             ⭐ Premium Olish
           </button>
           <button onClick={() => navigate("/user")}
             className="w-full py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
-            Orqaga
+            Bosh sahifaga
           </button>
         </div>
       </div>
