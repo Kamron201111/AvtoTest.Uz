@@ -209,6 +209,23 @@ const Result: React.FC = () => {
           </div>
         )}
 
+        {/* Premium taklifi - faqat premium bo'lmaganlar uchun */}
+        {!isPremium && (
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 text-white shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Star size={18} className="fill-current" />
+              <p className="font-black text-base">Premium bilan yanada ko'proq!</p>
+            </div>
+            <p className="text-xs text-amber-100 mb-3">
+              ♾️ Cheksiz test · 📖 Har xatoga izoh · 🎬 Video darslar · 📚 YHQ barcha boblari
+            </p>
+            <button onClick={() => navigate("/user")}
+              className="w-full py-2.5 bg-white text-amber-600 rounded-xl font-black text-sm hover:bg-amber-50 transition-all">
+              ⭐ Premium Olish
+            </button>
+          </div>
+        )}
+
         {/* Tugmalar */}
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => navigate("/user")}
