@@ -73,9 +73,9 @@ const Sozlamalar: React.FC = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   const PLANS = [
-    { label: "1 Hafta", price: parseInt(settings.price_1_hafta || "15000"), days: 7, popular: false },
-    { label: "1 Oy", price: parseInt(settings.price_1_oy || "49000"), days: 30, popular: true },
-    { label: "1 Yil", price: parseInt(settings.price_1_yil || "350000"), days: 365, popular: false },
+    { label: "1 Hafta", price: parseInt(settings.price_1_hafta || "15000"), days: 7, popular: false, icon: "⚡" },
+    { label: "1 Oy", price: parseInt(settings.price_1_oy || "49000"), days: 30, popular: true, icon: "🔥" },
+    { label: "1 Yil", price: parseInt(settings.price_1_yil || "350000"), days: 365, popular: false, icon: "👑" },
   ];
   const CARD_NUMBER = settings.card_number || "9860 1266 7183 6719";
   const CARD_OWNER = settings.card_owner || "Valiyev Kamron";
@@ -386,91 +386,125 @@ const Sozlamalar: React.FC = () => {
       {/* PREMIUM MODAL */}
       {premiumStep !== "closed" && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl shadow-2xl"
+               style={{height: "92vh", display: "flex", flexDirection: "column"}}>
+
             {premiumStep === "plans" && (
-              <div>
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-3xl relative">
+              <>
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-3xl relative flex-shrink-0">
                   <button onClick={closePremium} className="absolute top-4 right-4 text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
                   <h2 className="text-white font-black text-2xl">⭐ Premium</h2>
                   <p className="text-blue-200 text-sm mt-1">Paket tanlang</p>
                 </div>
-                <div className="p-5 space-y-3">
+                <div className="flex-1 overflow-y-auto p-5 space-y-3">
                   {PLANS.map(plan => (
-                    <button key={plan.label}
-                      onClick={() => { setSelectedPlan(plan); setPremiumStep("payment"); }}
-                      className={`w-full p-4 rounded-2xl border-2 text-left transition-all relative ${plan.popular ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 hover:border-blue-300"}`}>
+                    <button key={plan.label} onClick={() => { setSelectedPlan(plan); setPremiumStep("payment"); }}
+                      className={`w-full p-4 rounded-2xl border-2 text-left transition-all relative hover:scale-[1.01] ${plan.popular ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 hover:border-blue-300"}`}>
                       {plan.popular && <span className="absolute -top-2 right-4 bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">MASHHUR</span>}
                       <div className="flex items-center justify-between">
-                        <div><p className="font-black text-slate-800 dark:text-white">{plan.label}</p><p className="text-slate-500 text-xs">{plan.days} kun • Cheksiz test</p></div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{plan.icon}</span>
+                          <div><p className="font-black text-slate-800 dark:text-white">{plan.label}</p><p className="text-slate-500 text-xs">{plan.days} kun • Cheksiz test</p></div>
+                        </div>
                         <p className="font-black text-blue-600 text-lg">{plan.price.toLocaleString()} <span className="text-sm">so'm</span></p>
                       </div>
                     </button>
                   ))}
+                  <p className="text-xs text-slate-400 text-center pt-2 pb-4">To'lov qilgach chekni yuklang — admin tasdiqlaydi</p>
                 </div>
-              </div>
+              </>
             )}
+
             {premiumStep === "payment" && selectedPlan && (
-              <div>
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 rounded-t-3xl relative">
-                  <button onClick={() => setPremiumStep("plans")} className="absolute top-4 left-4 text-white/70 text-sm">← Orqaga</button>
-                  <button onClick={closePremium} className="absolute top-4 right-4 text-white/70"><X className="w-5 h-5" /></button>
-                  <h2 className="text-white font-black text-xl mt-2">💳 To'lov</h2>
-                  <p className="text-emerald-100 text-sm">{selectedPlan.label} — {selectedPlan.price.toLocaleString()} so'm</p>
+              <>
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-5 rounded-t-3xl relative flex-shrink-0">
+                  <button onClick={() => setPremiumStep("plans")} className="absolute top-4 left-4 text-white/80 hover:text-white text-sm font-bold">← Orqaga</button>
+                  <button onClick={closePremium} className="absolute top-4 right-4 text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
+                  <div className="text-center pt-1">
+                    <h2 className="text-white font-black text-xl">💳 To'lov</h2>
+                    <p className="text-emerald-100 text-sm mt-0.5">{selectedPlan.label} — <strong>{selectedPlan.price.toLocaleString()} so'm</strong></p>
+                  </div>
                 </div>
-                <div className="p-5 space-y-4">
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-white">
+                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"/>
                     <p className="text-slate-400 text-xs mb-1">{CARD_TYPE}</p>
                     <p className="text-xl font-mono font-bold tracking-widest mb-3">{CARD_NUMBER}</p>
                     <div className="flex items-center justify-between">
                       <div><p className="text-slate-400 text-xs">Egasi</p><p className="font-bold">{CARD_OWNER}</p></div>
-                      <button onClick={copyCard} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-bold">
-                        {cardCopied ? <><Check className="w-4 h-4" />Nusxalandi</> : <><Copy className="w-4 h-4" />Nusxalash</>}
+                      <button onClick={copyCard} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl text-sm font-bold transition-all">
+                        {cardCopied ? <><Check className="w-4 h-4" />Nusxalandi!</> : <><Copy className="w-4 h-4" />Nusxalash</>}
                       </button>
                     </div>
                   </div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                    <p className="text-amber-700 text-xs font-semibold">⚠️ To'lovni amalga oshiring va chekni pastga yuklang</p>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 rounded-xl p-3 flex items-center gap-2">
+                    <span className="text-lg flex-shrink-0">⚠️</span>
+                    <p className="text-amber-700 dark:text-amber-400 text-sm font-semibold">To'lovni amalga oshiring va chekni pastga yuklang</p>
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">📸 To'lov chekini yuklang:</p>
                     {screenshotPreview ? (
                       <div className="relative">
-                        <img src={screenshotPreview} alt="Chek" className="w-full rounded-xl max-h-48 object-cover" />
-                        <button onClick={() => { setScreenshot(null); setScreenshotPreview(""); }} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"><X className="w-4 h-4" /></button>
+                        <img src={screenshotPreview} alt="Chek" className="w-full rounded-xl max-h-56 object-cover border-2 border-emerald-400" />
+                        <button onClick={() => { setScreenshot(null); setScreenshotPreview(""); }}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg">
+                          <X className="w-4 h-4" />
+                        </button>
+                        <div className="absolute bottom-2 left-2 bg-emerald-500 text-white text-xs px-2 py-1 rounded-full font-bold">✓ Chek yuklandi</div>
                       </div>
                     ) : (
-                      <label className="w-full border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-blue-400 transition-all">
-                        <Upload className="w-8 h-8 text-slate-400" />
-                        <p className="text-sm font-semibold text-slate-500">Chekni yuklash uchun bosing</p>
+                      <label className="w-full border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 flex flex-col items-center gap-2 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all">
+                        <Upload className="w-10 h-10 text-slate-400" />
+                        <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Chekni yuklash uchun bosing</p>
+                        <p className="text-xs text-slate-400">JPG, PNG (maks 10MB)</p>
                         <input type="file" accept="image/*" className="hidden" onChange={handleScreenshot} />
                       </label>
                     )}
                   </div>
                   {submitMsg && (
-                    <div className={`p-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${submitMsg.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    <div className={`p-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${submitMsg.type === "success" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"}`}>
                       {submitMsg.type === "success" ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}{submitMsg.text}
                     </div>
                   )}
-                  <button onClick={handleSubmit} disabled={submitting || !screenshot}
-                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black shadow-xl disabled:opacity-50 flex items-center justify-center gap-2">
-                    {submitting ? <><Loader2 className="w-5 h-5 animate-spin" />Yuborilmoqda...</> : "✅ To'lovni Tasdiqlash"}
-                  </button>
+                  <div className="pb-4">
+                    <button onClick={handleSubmit} disabled={submitting || !screenshot}
+                      className={`w-full py-4 rounded-2xl font-black text-white text-base shadow-xl flex items-center justify-center gap-2 transition-all
+                        ${screenshot && !submitting
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-95"
+                          : "bg-slate-300 dark:bg-slate-700 cursor-not-allowed opacity-60"}`}>
+                      {submitting
+                        ? <><Loader2 className="w-5 h-5 animate-spin" />Yuborilmoqda...</>
+                        : screenshot
+                          ? "✅ To'lovni Tasdiqlash va Yuborish"
+                          : "⬆️ Avval chekni yuklang"}
+                    </button>
+                    {!screenshot && (
+                      <p className="text-center text-xs text-slate-400 mt-2">Chek yuklanmagan — yuborish mumkin emas</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
+
             {premiumStep === "waiting" && (
               <div>
                 <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-6 rounded-t-3xl relative">
-                  <button onClick={closePremium} className="absolute top-4 right-4 text-white/70"><X className="w-5 h-5" /></button>
+                  <button onClick={closePremium} className="absolute top-4 right-4 text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
                   <h2 className="text-white font-black text-xl">⏳ So'rov Yuborildi!</h2>
                 </div>
                 <div className="p-6 text-center space-y-4">
-                  <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-20 h-20 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto">
                     <Clock className="w-10 h-10 text-violet-600" />
                   </div>
-                  <h3 className="font-black text-slate-800 dark:text-white text-lg">Admin ko'rib chiqmoqda</h3>
-                  <p className="text-slate-500 text-sm">To'lov tekshirilgach premium avtomatik faollashadi. 5–30 daqiqa ichida.</p>
-                  <button onClick={closePremium} className="w-full py-3 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300">Yopish</button>
+                  <div>
+                    <h3 className="font-black text-slate-800 dark:text-white text-lg mb-2">Admin ko'rib chiqmoqda</h3>
+                    <p className="text-slate-500 text-sm">To'lov tekshirilgach premium avtomatik faollashadi. Odatda 5-30 daqiqa.</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-left space-y-2">
+                    <p className="text-sm text-slate-600 dark:text-slate-300">📦 Paket: <strong>{selectedPlan?.label}</strong></p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">💰 To'langan: <strong>{selectedPlan?.price.toLocaleString()} so'm</strong></p>
+                  </div>
+                  <button onClick={closePremium} className="w-full py-2 text-slate-400 text-sm">Yopish</button>
                 </div>
               </div>
             )}
