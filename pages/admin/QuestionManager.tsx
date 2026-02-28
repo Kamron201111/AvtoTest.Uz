@@ -683,7 +683,7 @@ export const QuestionForm: React.FC = () => {
           {(["A", "B", "C", "D", "E"] as const).map(opt => (
             <div key={opt} className="flex gap-3 items-center">
               <span className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded font-bold text-slate-500 dark:text-slate-300 flex-shrink-0">{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5"}[opt]}</span>
-              <input required={opt !== "E"} type="text" placeholder={opt === "E" ? "F5 varianti (ixtiyoriy)" : `${opt} varianti`} value={formData.options[opt]}
+              <input required={opt === "A"} type="text" placeholder={opt === "A" ? `${opt} varianti` : `${opt} varianti (ixtiyoriy)`} value={formData.options[opt]}
                 onChange={e => setFormData({ ...formData, options: { ...formData.options, [opt]: e.target.value } })}
                 className="flex-1 p-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
