@@ -62,31 +62,47 @@ const TalimPage: React.FC = () => {
         <h1 className="text-2xl font-black text-white mb-1">🚗 Ta'lim</h1>
         <p className="text-blue-200 text-sm">Test topshirish va kategoriyalar</p>
 
-        {/* Tezkor test boshlash */}
-        <div className="mt-4 bg-white/10 border border-white/20 rounded-2xl p-4">
-          <p className="text-white font-bold text-sm mb-3">Testni boshlash</p>
-          <div className="flex gap-2 mb-3">
-            {[10, 20, 30, 40].map(n => (
-              <button
-                key={n}
-                onClick={() => setQuestionCount(n)}
-                className={`flex-1 py-2 rounded-xl font-bold text-sm transition-all ${questionCount === n ? "bg-white text-blue-700 shadow" : "bg-white/20 text-white"}`}
-              >
-                {n}
-              </button>
-            ))}
+        {/* Ikki ramka yonma-yon */}
+        <div className="mt-4 grid grid-cols-2 gap-3">
+
+          {/* 1 — Testni boshlash */}
+          <div className="bg-white/10 border border-white/20 rounded-2xl p-4 flex flex-col">
+            <p className="text-white font-bold text-sm mb-3">📝 Testni boshlash</p>
+            <div className="grid grid-cols-2 gap-1.5 mb-3">
+              {[10, 20, 30, 40].map(n => (
+                <button
+                  key={n}
+                  onClick={() => setQuestionCount(n)}
+                  className={`py-1.5 rounded-xl font-bold text-sm transition-all ${questionCount === n ? "bg-white text-blue-700 shadow" : "bg-white/20 text-white"}`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={startTest}
+              disabled={totalQ === 0}
+              className="mt-auto w-full py-3 bg-white text-blue-700 rounded-xl font-black text-sm flex items-center justify-center gap-1.5 shadow-lg hover:bg-blue-50 transition-all disabled:opacity-50"
+            >
+              <Play className="w-4 h-4" fill="currentColor" />
+              Boshlash
+            </button>
           </div>
-          <button
-            onClick={startTest}
-            disabled={totalQ === 0}
-            className="w-full py-3.5 bg-white text-blue-700 rounded-2xl font-black text-base flex items-center justify-center gap-2 shadow-lg hover:bg-blue-50 transition-all disabled:opacity-50"
-          >
-            <Play className="w-5 h-5" fill="currentColor" />
-            Testni Boshlash
-          </button>
-          {totalQ === 0 && (
-            <p className="text-white/60 text-xs text-center mt-2">Admin savollar qo'shishini kuting</p>
-          )}
+
+          {/* 2 — Biletlar */}
+          <div className="bg-white/10 border border-white/20 rounded-2xl p-4 flex flex-col">
+            <p className="text-white font-bold text-sm mb-3">🎫 Biletlar</p>
+            <p className="text-white/70 text-xs mb-3 flex-1">
+              GAI imtihon biletlari — har birida 10 ta savol
+            </p>
+            <button
+              onClick={() => navigate("/biletlar")}
+              className="mt-auto w-full py-3 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-xl font-black text-sm flex items-center justify-center gap-1.5 shadow-lg hover:opacity-90 transition-all"
+            >
+              🎫 Kirish
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -166,27 +182,6 @@ const TalimPage: React.FC = () => {
           </div>
         )}
 
-        {/* Biletlar bo'limi */}
-        <div className="mt-6">
-          <h2 className="font-black text-slate-800 dark:text-white text-base mb-3">
-            🎫 Imtihon Biletlari
-          </h2>
-          <button
-            onClick={() => navigate("/biletlar")}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:border-green-400 hover:shadow-md transition-all active:scale-[0.99]"
-          >
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
-              🎫
-            </div>
-            <div className="flex-1 text-left">
-              <p className="font-black text-slate-800 dark:text-white text-sm">Biletlar bo'yicha test</p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-0.5 font-semibold">Har biletda 10 ta savol • GAI imtihon formati</p>
-            </div>
-            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   );
