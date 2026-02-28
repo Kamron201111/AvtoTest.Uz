@@ -227,7 +227,7 @@ const Quiz: React.FC = () => {
               </h2>
             </div>
             <div className="space-y-2 sm:space-y-3">
-              {(["A", "B", "C", "D", ...(currentQuestion.options.E ? ["E"] : [])] as const).map(optionKey => {
+              {(["A", "B", "C", "D", "E", "F"] as const).filter(optionKey => optionKey === "A" || currentQuestion.options[optionKey]).map(optionKey => {
                 let btnClass = "w-full text-left p-3 sm:p-4 rounded-xl border-2 transition-all flex items-start gap-2 sm:gap-3";
                 let badgeClass = "flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs sm:text-sm font-black shadow";
                 let textClass = "flex-1 text-xs sm:text-sm lg:text-base leading-relaxed pt-0.5";
@@ -249,7 +249,7 @@ const Quiz: React.FC = () => {
                 }
                 return (
                   <button key={optionKey} onClick={() => handleSelectAnswer(optionKey)} disabled={isAnswered} className={btnClass}>
-                    <div className={badgeClass}>{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5"}[optionKey] || optionKey}</div>
+                    <div className={badgeClass}>{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5","F":"F6"}[optionKey] || optionKey}</div>
                     <span className={textClass}>{currentQuestion.options[optionKey]}</span>
                   </button>
                 );
