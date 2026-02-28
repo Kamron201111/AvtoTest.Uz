@@ -26,8 +26,9 @@ export interface Question {
     C: string;
     D: string;
     E?: string;
+    F?: string;
   };
-  correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
+  correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
   image?: string;
   category?: string;
   description?: string;
