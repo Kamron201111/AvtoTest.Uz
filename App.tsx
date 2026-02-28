@@ -24,6 +24,9 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminChat from "./pages/admin/AdminChat";
 import AdminYHQ from "./pages/admin/AdminYHQ";
 import AdminKurslar from "./pages/admin/AdminKurslar";
+import Biletlar from "./pages/user/Biletlar";
+import BiletQuiz from "./pages/user/BiletQuiz";
+import AdminBiletlar from "./pages/admin/AdminBiletlar";
 
 const ProtectedRoute = ({ allowedRoles }: { allowedRoles: Role[] }) => {
   const { user, isAuthenticated } = useAuth();
@@ -69,12 +72,14 @@ const App: React.FC = () => {
                 <Route path="/kurslar" element={<Kurslar />} />
                 <Route path="/sozlamalar" element={<Sozlamalar />} />
                 <Route path="/history" element={<History />} />
+                <Route path="/biletlar" element={<Biletlar />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/chat" element={<Chat />} />
               </Route>
               <Route element={<FullScreen />}>
                 <Route path="/quiz" element={<Quiz />} />
                 <Route path="/result" element={<Result />} />
+                <Route path="/bilet-quiz/:biletId" element={<BiletQuiz />} />
               </Route>
             </Route>
 
@@ -88,6 +93,7 @@ const App: React.FC = () => {
                 <Route path="/admin/chat/:userId" element={<AdminChat />} />
                 <Route path="/admin/yhq" element={<AdminYHQ />} />
                 <Route path="/admin/kurslar" element={<AdminKurslar />} />
+                <Route path="/admin/biletlar" element={<AdminBiletlar />} />
               </Route>
             </Route>
 
