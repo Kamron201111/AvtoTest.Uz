@@ -194,6 +194,10 @@ const AdminDashboard: React.FC = () => {
                 <BarChart2 className="w-8 h-8 text-purple-500" />
                 <span className="font-bold">Kurslar</span>
               </button>
+              <button onClick={() => navigate('/admin/biletlar')} className="p-5 bg-green-600 text-white rounded-2xl shadow-lg hover:bg-green-700 flex flex-col items-center gap-2">
+                <span className="text-2xl">🎫</span>
+                <span className="font-bold">Biletlar</span>
+              </button>
             </div>
 
             <div className="flex gap-3">
