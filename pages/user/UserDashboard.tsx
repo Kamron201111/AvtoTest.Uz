@@ -293,16 +293,16 @@ const UserDashboard: React.FC = () => {
       {/* PREMIUM MODAL */}
       {premiumStep !== "closed" && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-0">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl shadow-2xl flex flex-col" style={{maxHeight:"92vh"}}>
 
             {premiumStep === "plans" && (
-              <div>
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-3xl relative">
+              <div className="flex flex-col min-h-0">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-3xl relative flex-shrink-0">
                   <button onClick={closePremium} className="absolute top-4 right-4 text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
                   <h2 className="text-white font-black text-2xl">⭐ Premium</h2>
                   <p className="text-blue-200 text-sm mt-1">Paket tanlang</p>
                 </div>
-                <div className="p-5 space-y-3">
+                <div className="p-5 space-y-3 overflow-y-auto flex-1">
                   {PLANS.map(plan => (
                     <button key={plan.label} onClick={() => { setSelectedPlan(plan); setPremiumStep("payment"); }}
                       className={`w-full p-4 rounded-2xl border-2 text-left transition-all relative hover:scale-[1.01] ${plan.popular ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 hover:border-blue-300"}`}>
@@ -322,14 +322,14 @@ const UserDashboard: React.FC = () => {
             )}
 
             {premiumStep === "payment" && selectedPlan && (
-              <div>
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 rounded-t-3xl relative">
+              <div className="flex flex-col min-h-0">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 rounded-t-3xl relative flex-shrink-0">
                   <button onClick={() => setPremiumStep("plans")} className="absolute top-4 left-4 text-white/70 hover:text-white text-sm">← Orqaga</button>
                   <button onClick={closePremium} className="absolute top-4 right-4 text-white/70 hover:text-white"><X className="w-5 h-5" /></button>
                   <h2 className="text-white font-black text-xl mt-2">💳 To'lov</h2>
                   <p className="text-emerald-100 text-sm">{selectedPlan.label} — {selectedPlan.price.toLocaleString()} so'm</p>
                 </div>
-                <div className="p-5 space-y-4">
+                <div className="p-5 space-y-4 overflow-y-auto flex-1">
                   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"/>
                     <p className="text-slate-400 text-xs mb-1">{CARD_TYPE}</p>
