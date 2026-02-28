@@ -679,15 +679,44 @@ export const QuestionForm: React.FC = () => {
 
         {/* Variantlar */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t("q_form_opts")}</label>
-          {(["A", "B", "C", "D", "E"] as const).map(opt => (
-            <div key={opt} className="flex gap-3 items-center">
-              <span className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded font-bold text-slate-500 dark:text-slate-300 flex-shrink-0">{{"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5"}[opt]}</span>
-              <input required={opt === "A"} type="text" placeholder={opt === "A" ? `${opt} varianti` : `${opt} varianti (ixtiyoriy)`} value={formData.options[opt]}
-                onChange={e => setFormData({ ...formData, options: { ...formData.options, [opt]: e.target.value } })}
-                className="flex-1 p-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-            </div>
-          ))}
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            {t("q_form_opts")}
+            <span className="ml-2 text-xs text-slate-400 font-normal">F1 majburiy, qolganlar ixtiyoriy</span>
+          </label>
+          {(["A", "B", "C", "D", "E", "F"] as const).map(opt => {
+            const LABELS: Record<string, string> = {"A":"F1","B":"F2","C":"F3","D":"F4","E":"F5","F":"F6"};
+            const isRequired = opt === "A";
+            const val = (formData.options as any)[opt] || "";
+            // F2-F6: faqat oldingi yozilgan bo'lsa ko'rsat
+            const prevOpts: Record<string, string> = {"B":"A","C":"B","D":"C","E":"D","F":"E"};
+            const prevKey = prevOpts[opt];
+            const prevVal = prevKey ? ((formData.options as any)[prevKey] || "") : "filled";
+            const show = isRequired || prevVal.trim() !== "";
+            if (!show) return null;
+            return (
+              <div key={opt} className="flex gap-3 items-center">
+                <span className={`w-8 h-8 flex items-center justify-center rounded font-bold flex-shrink-0 text-sm ${
+                  isRequired
+                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"
+                    : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300"
+                }`}>
+                  {LABELS[opt]}
+                </span>
+                <input
+                  required={isRequired}
+                  type="text"
+                  placeholder={isRequired ? "F1 varianti (majburiy)" : LABELS[opt] + " varianti (ixtiyoriy)"}
+                  value={val}
+                  onChange={e => setFormData({ ...formData, options: { ...formData.options, [opt]: e.target.value } })}
+                  className={`flex-1 p-2 border rounded-lg focus:ring-2 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm ${
+                    isRequired
+                      ? "border-blue-300 dark:border-blue-700 focus:ring-blue-500"
+                      : "border-slate-200 dark:border-slate-600 focus:ring-slate-400"
+                  }`}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* To'g'ri javob */}
@@ -695,11 +724,12 @@ export const QuestionForm: React.FC = () => {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t("q_form_correct")}</label>
           <select value={formData.correctAnswer} onChange={e => setFormData({ ...formData, correctAnswer: e.target.value as any })}
             className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg outline-none">
-            <option value="A">Variant A (F1)</option>
-            <option value="B">Variant B (F2)</option>
-            <option value="C">Variant C (F3)</option>
-            <option value="D">Variant D (F4)</option>
-            <option value="E">Variant E (F5) — ixtiyoriy</option>
+            <option value="A">F1 varianti (majburiy)</option>
+            {(formData.options as any).B && <option value="B">F2 varianti</option>}
+            {(formData.options as any).C && <option value="C">F3 varianti</option>}
+            {(formData.options as any).D && <option value="D">F4 varianti</option>}
+            {(formData.options as any).E && <option value="E">F5 varianti</option>}
+            {(formData.options as any).F && <option value="F">F6 varianti</option>}
           </select>
         </div>
 
@@ -714,7 +744,7 @@ export const QuestionForm: React.FC = () => {
             placeholder="Bu savolga tushuntirish yozing (masalan: YHQ 63-moddasi bo'yicha aholi punktlarida tezlik 60 km/soatdan oshmasligi kerak...)"
             className="w-full p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-400 outline-none text-sm" />
           <p className="text-xs text-slate-400 mt-1">Bu maydon ixtiyoriy. Xatolar tahlilida premium foydalanuvchilarga ko'rinadi.</p>
-          <p className="text-xs text-amber-500 mt-1">💡 F5 (E) varianti ham ixtiyoriy — yozilmasa ko'rinmaydi.</p>
+          <p className="text-xs text-amber-500 mt-1">💡 F2-F6 ixtiyoriy — yozilsa qo'shiladi, yozilmasa ko'rinmaydi.</p>
         </div>
 
         <button type="submit" disabled={saving}
