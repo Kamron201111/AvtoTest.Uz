@@ -134,7 +134,15 @@ export const getQuestionsByCategory = async (category: string): Promise<Question
 
 export const saveQuestion = async (question: Question): Promise<boolean> => {
   const row = mapQuestionToRow(question);
+  // Rasm hajmini tekshirish
+  if (row.image && row.image.length > 500_000) {
+    console.error('Rasm juda katta:', Math.round(row.image.length / 1024) + 'KB');
+    return false;
+  }
   const { error } = await supabase.from('questions').upsert(row, { onConflict: 'id' });
+  if (error) {
+    console.error('saveQuestion xatolik:', error.message, error.details, error.hint);
+  }
   return !error;
 };
 
