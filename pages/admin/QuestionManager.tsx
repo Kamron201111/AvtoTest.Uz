@@ -594,8 +594,11 @@ export const QuestionForm: React.FC = () => {
     const payload = { ...formData, id: isEdit ? formData.id : ("q_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7)) };
     const ok = await saveQuestion(payload);
     setSaving(false);
-    if (ok) navigate("/admin/questions");
-    else alert("Saqlashda xatolik yuz berdi!");
+    if (ok) {
+      navigate("/admin/questions");
+    } else {
+      alert("Saqlashda xatolik yuz berdi!\n\nMumkin bo'lgan sabab:\n• Rasm hajmi juda katta (500KB dan oshmasligi kerak)\n• Internet aloqasi yo'q\n• Supabase RLS policy\n\nRasmni olib tashlang va qayta urinib ko'ring.");
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -608,12 +611,21 @@ export const QuestionForm: React.FC = () => {
       img.onload = () => {
         const canvas = document.createElement("canvas");
         let { width, height } = img;
-        const MAX = 800;
-        if (width > MAX) { height *= MAX / width; width = MAX; }
+        const MAX = 600;
+        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX; }
+        if (height > MAX) { width = Math.round(width * MAX / height); height = MAX; }
         canvas.width = width;
         canvas.height = height;
         canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
-        setFormData(prev => ({ ...prev, image: canvas.toDataURL("image/jpeg", 0.75) }));
+        // Sifatni kamaytirish - DB limit uchun
+        let quality = 0.6;
+        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+        // Agar hali ham katta bo'lsa yanada kichraytir
+        while (dataUrl.length > 500_000 && quality > 0.1) {
+          quality -= 0.1;
+          dataUrl = canvas.toDataURL("image/jpeg", quality);
+        }
+        setFormData(prev => ({ ...prev, image: dataUrl }));
       };
       img.src = event.target?.result as string;
     };
