@@ -137,11 +137,18 @@ export const saveQuestion = async (question: Question): Promise<boolean> => {
   // Rasm hajmini tekshirish
   if (row.image && row.image.length > 500_000) {
     console.error('Rasm juda katta:', Math.round(row.image.length / 1024) + 'KB');
+    (window as any).__lastSaveError = 'Rasm hajmi juda katta (' + Math.round(row.image.length/1024) + 'KB). 500KB dan oshmasligi kerak.';
     return false;
   }
   const { error } = await supabase.from('questions').upsert(row, { onConflict: 'id' });
   if (error) {
-    console.error('saveQuestion xatolik:', error.message, error.details, error.hint);
+    console.error('saveQuestion xatolik:', error.message, error.code, error.details, error.hint);
+    // RLS xatoligi
+    if (error.code === '42501' || error.message?.includes('policy') || error.message?.includes('permission')) {
+      (window as any).__lastSaveError = 'Supabase RLS xatoligi: questions jadvaliga yozish huquqi yo\'q.\n\nSupabase Dashboard > SQL Editor da quyidagini ishlatib yuboring:\nALTER TABLE questions DISABLE ROW LEVEL SECURITY;';
+    } else {
+      (window as any).__lastSaveError = error.message || 'Noma\'lum xatolik';
+    }
   }
   return !error;
 };
