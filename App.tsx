@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
 import { Role } from "./types";
 import Navbar from "./components/Navbar";
+import AdminLayout from "./components/AdminLayout";
 import BottomNav from "./components/BottomNav";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Landing from "./pages/Landing";
@@ -35,12 +36,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: Role[] }) => {
   return <Outlet />;
 };
 
-const AdminLayout = () => (
-  <>
-    <Navbar />
-    <Outlet />
-  </>
-);
+// AdminLayout is now a separate component in components/AdminLayout.tsx
 
 const UserLayout = () => (
   <>
