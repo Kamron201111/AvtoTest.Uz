@@ -597,7 +597,13 @@ export const QuestionForm: React.FC = () => {
     if (ok) {
       navigate("/admin/questions");
     } else {
-      alert("Saqlashda xatolik yuz berdi!\n\nMumkin bo'lgan sabab:\n• Rasm hajmi juda katta (500KB dan oshmasligi kerak)\n• Internet aloqasi yo'q\n• Supabase RLS policy\n\nRasmni olib tashlang va qayta urinib ko'ring.");
+      const errMsg = (window as any).__lastSaveError;
+      if (errMsg) {
+        alert("❌ Saqlashda xatolik:\n\n" + errMsg);
+        delete (window as any).__lastSaveError;
+      } else {
+        alert("❌ Saqlashda xatolik yuz berdi!\n\nBrowser Console (F12) da xatolikni ko'ring.\n\nEng ko'p uchraydigan sabab: Supabase RLS policy.\nYechim: Supabase Dashboard > SQL Editor:\nALTER TABLE questions DISABLE ROW LEVEL SECURITY;");
+      }
     }
   };
 
