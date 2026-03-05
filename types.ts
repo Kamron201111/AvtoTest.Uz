@@ -118,3 +118,21 @@ export interface StudyMaterial {
   type: 'article' | 'video' | 'quiz';
   content: string;
 }
+
+export interface Challenge {
+  id: string;
+  challengerId: string;
+  challengedId: string;
+  questionCount: number;
+  status: 'pending' | 'active' | 'completed';
+  createdAt: string;
+  challengerScore?: number;
+  challengedScore?: number;
+}
+
+export interface Bookmark {
+  id: string;
+  userId: string;
+  questionId: string;
+  savedAt: string;
+}
