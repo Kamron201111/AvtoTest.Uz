@@ -95,7 +95,7 @@ const AdminLayout = () => {
       {/* Logo */}
       <div className="px-5 pt-6 pb-5 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-200 dark:shadow-blue-900/40">R</div>
+          <div className="w-9 h-9 bg-sky-500 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg shadow-sky-100 dark:shadow-blue-900/40">R</div>
           <div>
             <p className="font-black text-slate-800 dark:text-white text-sm leading-tight">RuldaTest</p>
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">Admin Panel</p>
@@ -107,13 +107,13 @@ const AdminLayout = () => {
       <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4">
         {NAV_GROUPS.map(group => (
           <div key={group.section}>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest px-3 mb-1.5">{group.section}</p>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest px-3 mb-1.5">{group.section}</p>
             <div className="space-y-0.5">
               {group.items.map(item => {
                 const active = isActive(item.path, item.exact);
                 return (
                   <button key={item.path} onClick={() => { navigate(item.path); setMobileOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all \${active ? 'bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all \${active ? 'bg-sky-500 text-white shadow-md shadow-sky-100 dark:shadow-blue-900/40' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                     {getIcon(item.icon)}
                     <span className="flex-1 text-left">{item.label}</span>
                   </button>
